@@ -736,7 +736,7 @@ footer {
               <div class="search-tab" data-type="recipes">📝 Recipes</div>
             </div>
             <div class="suggestions" style="margin-top:6px">
-              <input id="searchInput" class="input" placeholder="Start typing (e.g. 'Chicken breast' or paste barcode)" autocomplete="off" />
+              <input id="searchInput" class="input" placeholder="Search food or paste barcode (e.g., 'Joghurt','milch')" autocomplete="off" />
               <div id="suggestions" class="suggestions-list" style="display:none"></div>
             </div>
             <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
@@ -2643,7 +2643,7 @@ async function searchSuggestions(term) {
   return [];
 }
 
-// Search Input Handler - Combined Open Food Facts + Edamam
+// Search Input Handler - Open Food Facts Only (German first, then international)
 let suggestionTimer = null;
 let spinnerTimeout = null;
 let searchInProgress = false;
@@ -2672,7 +2672,7 @@ searchInput.addEventListener('input', (e) => {
     if (/^\d{8,}$/.test(v)) {
       spinnerTimeout = setTimeout(() => {
         if (searchInProgress) spinner.style.display = 'flex';
-      }, 200);
+      }, 150);
       showLoadingSuggestions(`Looking up barcode ${v}…`);
       const found = await fetchProductByBarcode(v);
       searchInProgress = false;
@@ -2692,19 +2692,13 @@ searchInput.addEventListener('input', (e) => {
       }
     }
     
-    // Text search - use both APIs in parallel
+    // Text search - Open Food Facts only (German first)
     spinnerTimeout = setTimeout(() => {
       if (searchInProgress) spinner.style.display = 'flex';
-    }, 200);
-    showLoadingSuggestions('Searching multiple databases...');
+    }, 150);
+    showLoadingSuggestions('Searching...');
     
-    const [offResults, edamamResults] = await Promise.all([
-      searchSuggestions(v),
-      searchEdamamFoodDB(v)
-    ]);
-    
-    // Combine results, prioritizing Open Food Facts
-    const combined = [...offResults, ...edamamResults];
+    const results = await searchSuggestions(v);
     
     searchInProgress = false;
     if (spinnerTimeout) {
@@ -2712,9 +2706,10 @@ searchInput.addEventListener('input', (e) => {
       spinnerTimeout = null;
     }
     spinner.style.display = 'none';
-    renderSuggestions(combined);
-  }, 150);
+    renderSuggestions(results);
+  }, 100); // Reduced from 150ms to 100ms for snappier response
 });
+
 
 // Paste Barcode
 pasteBarcodeBtn.addEventListener('click', async () => {
