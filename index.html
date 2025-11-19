@@ -1,0 +1,4857 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta name="description" content="Complete nutrition tracking with AI-powered meal planning" />
+<meta name="theme-color" content="#2b8cff" />
+<link rel="manifest" href="manifest.json" />
+<title>FoodLog Pro — Complete Nutrition Tracker</title>
+<style>
+:root {
+  --bg: #ffffff;
+  --fg: #111;
+  --card: #f7f7f8;
+  --accent: #2b8cff;
+  --green: #10b981;
+  --orange: #f59e0b;
+  --red: #ef4444;
+  --yellow: #fbbf24;
+  --purple: #a855f7;
+  --blue: #3b82f6;
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  transition: background 0.3s, color 0.3s;
+}
+
+body[data-theme="dark"] {
+  --bg: #0b0c0f;
+  --fg: #e6eef8;
+  --card: #111217;
+  --accent: #4aa3ff;
+  --green: #34d399;
+  --orange: #fbbf24;
+  --red: #f87171;
+  --yellow: #fde047;
+  --purple: #c084fc;
+  --blue: #60a5fa;
+}
+
+body[data-theme="dark"] .btn-secondary {
+  border-color: rgba(255,255,255,0.1);
+}
+
+body[data-theme="dark"] .btn-secondary:hover {
+  background: rgba(255,255,255,0.05);
+}
+
+body[data-theme="dark"] .input {
+  border-color: rgba(255,255,255,0.1);
+}
+
+body[data-theme="dark"] .btn-icon {
+  border-color: rgba(255,255,255,0.1);
+}
+
+body[data-theme="dark"] .btn-icon:hover {
+  background: rgba(255,255,255,0.05);
+}
+
+body[data-theme="dark"] .suggestions-list {
+  background: rgba(17, 18, 23, 0.95);
+  border-color: rgba(255,255,255,0.1);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.4);
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial;
+}
+
+body {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 18px;
+}
+
+.app {
+  width: 100%;
+  max-width: 1400px;
+}
+
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+h1 { margin: 0; font-size: 20px; }
+h2 { margin: 8px 0; font-size: 18px; }
+h3 { margin: 6px 0; font-size: 16px; }
+
+.controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.card {
+  background: var(--card);
+  border-radius: 10px;
+  padding: 12px;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+  margin-bottom: 12px;
+}
+
+.meals {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.btn {
+  background: var(--accent);
+  border: none;
+  color: white;
+  padding: 8px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: opacity 0.2s;
+}
+
+.btn:hover { opacity: 0.9; }
+
+.btn-secondary {
+  background: transparent;
+  border: 1px solid rgba(0,0,0,0.08);
+  color: var(--fg);
+  padding: 8px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+  background: rgba(0,0,0,0.03);
+}
+
+.btn-small {
+  padding: 4px 8px;
+  font-size: 12px;
+}
+
+.btn-icon {
+  padding: 6px;
+  border-radius: 6px;
+  cursor: pointer;
+  border: 1px solid rgba(0,0,0,0.08);
+  background: transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.btn-icon:hover {
+  background: rgba(0,0,0,0.03);
+}
+
+.btn-icon.active {
+  background: var(--yellow);
+  border-color: var(--yellow);
+}
+
+.input {
+  width: 100%;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid rgba(0,0,0,0.08);
+  font-size: 14px;
+  background: transparent;
+  color: var(--fg);
+}
+
+.textarea {
+  width: 100%;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid rgba(0,0,0,0.08);
+  font-size: 14px;
+  background: transparent;
+  color: var(--fg);
+  min-height: 80px;
+  resize: vertical;
+  font-family: inherit;
+}
+
+.suggestions {
+  position: relative;
+}
+
+.suggestions-list {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 44px;
+  background: var(--card);
+  max-height: 280px;
+  overflow: auto;
+  border-radius: 8px;
+  padding: 6px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+  z-index: 20;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(0,0,0,0.1);
+}
+
+.s-item {
+  padding: 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.s-item:hover {
+  background: rgba(0,0,0,0.03);
+}
+
+.log-list {
+  max-height: 600px;
+  overflow: auto;
+}
+
+.log-entry {
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 8px;
+  background: linear-gradient(180deg, rgba(0,0,0,0.02), transparent);
+}
+
+.log-entry.has-photo {
+  display: flex;
+  gap: 12px;
+}
+
+.entry-photo {
+  width: 80px;
+  height: 80px;
+  border-radius: 8px;
+  object-fit: cover;
+  cursor: pointer;
+}
+
+small {
+  opacity: 0.8;
+  font-size: 13px;
+}
+
+.row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+label {
+  font-size: 13px;
+}
+
+footer {
+  opacity: 0.7;
+  font-size: 12px;
+  margin-top: 12px;
+  text-align: center;
+}
+
+.nutri-grid {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.nutri {
+  min-width: 120px;
+  background: rgba(0,0,0,0.02);
+  padding: 6px;
+  border-radius: 6px;
+}
+
+.barcode-preview {
+  width: 100%;
+  height: 220px;
+  background: #000;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 13px;
+}
+
+.muted {
+  opacity: 0.7;
+}
+
+.meal-active {
+  background: var(--accent);
+  color: white;
+  border: 0;
+}
+
+.totals {
+  margin-top: 8px;
+  border-top: 1px dashed rgba(0,0,0,0.06);
+  padding-top: 8px;
+}
+
+.toast {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 22px;
+  background: rgba(0,0,0,0.8);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 8px;
+  z-index: 90;
+  font-size: 13px;
+  opacity: 0;
+  transition: opacity 0.22s;
+}
+
+.toast.show {
+  opacity: 1;
+}
+
+.error-text {
+  color: var(--red);
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background: rgba(0,0,0,0.06);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-top: 4px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--green);
+  transition: width 0.3s;
+}
+
+.progress-fill.warning {
+  background: var(--orange);
+}
+
+.progress-fill.danger {
+  background: var(--red);
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.stat-card {
+  background: rgba(0,0,0,0.02);
+  padding: 12px;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.stat-value {
+  font-size: 24px;
+  font-weight: bold;
+  color: var(--accent);
+}
+
+.stat-label {
+  font-size: 12px;
+  opacity: 0.8;
+  margin-top: 4px;
+}
+
+.micro-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.micro-item {
+  background: rgba(0,0,0,0.02);
+  padding: 8px;
+  border-radius: 6px;
+}
+
+.micro-item strong {
+  color: var(--accent);
+}
+
+.tab-buttons {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+  overflow-x: auto;
+}
+
+.tab-btn {
+  background: transparent;
+  border: none;
+  color: var(--fg);
+  padding: 8px 16px;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  opacity: 0.6;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.tab-btn.active {
+  opacity: 1;
+  border-bottom-color: var(--accent);
+}
+
+.tab-btn:hover {
+  opacity: 0.8;
+}
+
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+.date-selector {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.goal-input {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.undo-bar {
+  position: fixed;
+  bottom: 22px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--card);
+  padding: 8px 12px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  z-index: 85;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.undo-bar.show {
+  opacity: 1;
+}
+
+.recipe-ingredients {
+  margin-top: 8px;
+  padding: 8px;
+  background: rgba(0,0,0,0.02);
+  border-radius: 6px;
+}
+
+.ingredient-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.search-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.search-tab {
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  background: rgba(0,0,0,0.02);
+  transition: all 0.2s;
+}
+
+.search-tab.active {
+  background: var(--accent);
+  color: white;
+}
+
+.search-tab:hover {
+  opacity: 0.8;
+}
+
+.fasting-timer {
+  background: linear-gradient(135deg, var(--purple), var(--blue));
+  color: white;
+  padding: 16px;
+  border-radius: 12px;
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+.fasting-time {
+  font-size: 32px;
+  font-weight: bold;
+  margin: 8px 0;
+}
+
+.water-tracker {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.water-glass {
+  width: 40px;
+  height: 50px;
+  background: rgba(0,0,0,0.05);
+  border-radius: 4px;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.water-glass.filled {
+  background: var(--blue);
+}
+
+.water-glass:hover {
+  transform: scale(1.1);
+}
+
+.meal-plan-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.meal-plan-day {
+  background: rgba(0,0,0,0.02);
+  padding: 12px;
+  border-radius: 8px;
+}
+
+.shopping-list {
+  list-style: none;
+  padding: 0;
+}
+
+.shopping-item {
+  padding: 8px;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.shopping-item.checked {
+  opacity: 0.5;
+  text-decoration: line-through;
+}
+
+.mood-selector {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.mood-emoji {
+  font-size: 24px;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.mood-emoji:hover {
+  background: rgba(0,0,0,0.05);
+  transform: scale(1.2);
+}
+
+.mood-emoji.selected {
+  background: var(--accent);
+}
+
+.metric-chart {
+  width: 100%;
+  height: 200px;
+  margin-top: 12px;
+}
+
+.voice-btn {
+  background: var(--red);
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 18px;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.voice-btn:hover {
+  transform: scale(1.1);
+}
+
+.voice-btn.listening {
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+.ai-suggestion {
+  background: linear-gradient(135deg, var(--purple), var(--accent));
+  color: white;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+
+@media (max-width: 900px) {
+  .barcode-preview {
+    height: 180px;
+  }
+  .nutri {
+    min-width: 100px;
+  }
+  .dashboard-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .meal-plan-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media print {
+  .controls, .btn, button {
+    display: none;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="app" id="app">
+  <header>
+    <div>
+      <h1>🍎 FoodLog Pro</h1>
+      <small class="muted">Complete nutrition & wellness tracker</small>
+    </div>
+    <div class="controls">
+      <button id="voiceBtn" class="voice-btn" title="Voice input">🎤</button>
+      <button id="undoBtn" class="btn-secondary" style="display:none">↶ Undo</button>
+      <button id="darkToggle" class="btn-secondary">🌙 Dark</button>
+      <button id="notificationBtn" class="btn-secondary">🔔 Alerts</button>
+      <button id="exportBtn" class="btn-secondary">💾 Export</button>
+      <button id="importBtn" class="btn-secondary">📂 Import</button>
+    </div>
+  </header>
+
+  <div class="card">
+    <div class="tab-buttons">
+      <button class="tab-btn active" data-tab="today">Today</button>
+      <button class="tab-btn" data-tab="history">History</button>
+      <button class="tab-btn" data-tab="dashboard">Dashboard</button>
+      <button class="tab-btn" data-tab="edamam">🤖 AI Meals</button>
+      <button class="tab-btn" data-tab="planning">📅 Meal Plan</button>
+      <button class="tab-btn" data-tab="fasting">⏱️ Fasting</button>
+      <button class="tab-btn" data-tab="water">💧 Water</button>
+      <button class="tab-btn" data-tab="metrics">📊 Metrics</button>
+      <button class="tab-btn" data-tab="shopping">🛒 Shopping</button>
+      <button class="tab-btn" data-tab="settings">⚙️ Settings</button>
+    </div>
+  </div>
+
+  <!-- TODAY TAB -->
+  <div class="tab-content active" id="tab-today">
+    <main>
+      <section>
+        <div class="card">
+          <div class="meals" id="mealButtons">
+            <button class="btn-secondary mealBtn meal-active" data-meal="all">All</button>
+            <button class="btn-secondary mealBtn" data-meal="breakfast">Breakfast</button>
+            <button class="btn-secondary mealBtn" data-meal="lunch">Lunch</button>
+            <button class="btn-secondary mealBtn" data-meal="dinner">Dinner</button>
+            <button class="btn-secondary mealBtn" data-meal="snack">Snack</button>
+          </div>
+
+          <div>
+            <label>Search food or paste barcode</label>
+            <div class="search-tabs" id="searchTabs">
+              <div class="search-tab active" data-type="search">🔍 Search</div>
+              <div class="search-tab" data-type="recent">🕐 Recent</div>
+              <div class="search-tab" data-type="favorites">⭐ Favorites</div>
+              <div class="search-tab" data-type="recipes">📝 Recipes</div>
+            </div>
+            <div class="suggestions" style="margin-top:6px">
+              <input id="searchInput" class="input" placeholder="Start typing (e.g. 'Chicken breast' or paste barcode)" autocomplete="off" />
+              <div id="suggestions" class="suggestions-list" style="display:none"></div>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
+              <button id="scanBtn" class="btn">📷 Scan Barcode</button>
+              <button id="photoBtn" class="btn-secondary">📸 Photo Log</button>
+              <button id="pasteBarcodeBtn" class="btn-secondary">📋 Paste</button>
+              <button id="manualAddBtn" class="btn-secondary">+ Manual</button>
+              <button id="supplementBtn" class="btn-secondary">💊 Supplement</button>
+              <button id="goalsBtn" class="btn-secondary">🎯 Goals</button>
+              <button id="recipesBtn" class="btn-secondary">📝 Recipes</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" id="barcodeCard" style="display:none">
+          <h3>Barcode Scanner</h3>
+          <video id="barcodeVideo" class="barcode-preview" autoplay playsinline></video>
+          <div id="barcodeStatus" style="margin-top:8px">
+            <small class="muted">Initializing camera...</small>
+          </div>
+          <div style="margin-top:8px;display:flex;gap:8px">
+            <button id="stopScanBtn" class="btn-secondary">Stop Scanning</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Selected product</h3>
+          <div id="selectedProduct">
+            <small class="muted">No product selected</small>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Log entries</h3>
+          <div id="mealSummary" class="muted" style="margin-bottom:8px">
+            Showing: Today • All meals
+          </div>
+          <div class="log-list" id="logList"></div>
+        </div>
+      </section>
+
+      <aside>
+        <div id="spinner" style="display:none;padding:12px;text-align:center">
+          <small class="muted">Searching…</small>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <!-- HISTORY TAB -->
+  <div class="tab-content" id="tab-history">
+    <div class="card">
+      <h2>History & Calendar</h2>
+      <div class="date-selector">
+        <button id="prevDay" class="btn-secondary btn-small">← Prev</button>
+        <input type="date" id="datePicker" class="input" style="width:180px" />
+        <button id="nextDay" class="btn-secondary btn-small">Next →</button>
+        <button id="todayBtn" class="btn-secondary btn-small">Today</button>
+      </div>
+      <div id="historyView"></div>
+    </div>
+  </div>
+
+  <!-- DASHBOARD TAB -->
+  <div class="tab-content" id="tab-dashboard">
+    <div class="card">
+      <h2>Daily Summary Dashboard</h2>
+      <div id="dashboardContent"></div>
+    </div>
+  </div>
+
+  <!-- EDAMAM AI MEALS TAB -->
+  <div class="tab-content" id="tab-edamam">
+    <div class="card">
+      <h2>🤖 AI-Powered Meal Suggestions</h2>
+      <p class="muted">Get personalized meal recommendations based on your goals</p>
+      
+      <div style="margin-top:12px">
+        <label>Target Calories for Today:</label>
+        <input type="number" id="aiCalorieTarget" class="input" placeholder="2000" value="2000" />
+      </div>
+
+      <div style="margin-top:12px">
+        <label>Diet Preference:</label>
+        <select id="aiDietType" class="input">
+          <option value="balanced">Balanced</option>
+          <option value="high-protein">High Protein</option>
+          <option value="low-fat">Low Fat</option>
+          <option value="low-carb">Low Carb</option>
+          <option value="high-fiber">High Fiber</option>
+        </select>
+      </div>
+
+      <div style="margin-top:12px">
+        <label>Health Preferences (optional):</label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+          <button class="btn-secondary btn-small health-label" data-value="vegan">Vegan</button>
+          <button class="btn-secondary btn-small health-label" data-value="vegetarian">Vegetarian</button>
+          <button class="btn-secondary btn-small health-label" data-value="paleo">Paleo</button>
+          <button class="btn-secondary btn-small health-label" data-value="dairy-free">Dairy-Free</button>
+          <button class="btn-secondary btn-small health-label" data-value="gluten-free">Gluten-Free</button>
+          <button class="btn-secondary btn-small health-label" data-value="peanut-free">Peanut-Free</button>
+        </div>
+      </div>
+
+      <button id="getAISuggestionsBtn" class="btn" style="margin-top:16px">✨ Get AI Meal Suggestions</button>
+
+      <div id="aiSuggestionsResult" style="margin-top:16px"></div>
+    </div>
+
+    <div class="card">
+      <h2>🔍 Advanced Food Search (Edamam Database)</h2>
+      <p class="muted">Search from Edamam's extensive food database with detailed nutrition info</p>
+      
+      <div style="margin-top:12px">
+        <input type="text" id="edamamSearchInput" class="input" placeholder="Search foods (e.g., 'grilled salmon')" />
+      </div>
+
+      <button id="edamamSearchBtn" class="btn" style="margin-top:8px">Search Edamam DB</button>
+
+      <div id="edamamSearchResults" style="margin-top:16px"></div>
+    </div>
+
+    <div class="card">
+      <h2>🧪 Recipe Nutrition Analysis</h2>
+      <p class="muted">Analyze complete nutrition for any recipe</p>
+      
+      <div style="margin-top:12px">
+        <label>Recipe Title:</label>
+        <input type="text" id="recipeAnalysisTitle" class="input" placeholder="My Recipe" />
+      </div>
+
+      <div style="margin-top:12px">
+        <label>Ingredients (one per line):</label>
+        <textarea id="recipeAnalysisIngredients" class="textarea" placeholder="1 cup rice&#10;200g chicken breast&#10;2 tbsp olive oil"></textarea>
+      </div>
+
+      <button id="analyzeRecipeBtn" class="btn" style="margin-top:8px">🧪 Analyze Recipe</button>
+
+      <div id="recipeAnalysisResult" style="margin-top:16px"></div>
+    </div>
+  </div>
+
+  <!-- MEAL PLANNING TAB -->
+  <div class="tab-content" id="tab-planning">
+    <div class="card">
+      <h2>📅 Weekly Meal Planner</h2>
+      <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+        <button id="createWeekPlanBtn" class="btn">+ New Week Plan</button>
+        <button id="generatePlanBtn" class="btn-secondary">✨ Auto-Generate Plan</button>
+        <select id="weekSelector" class="input" style="width:200px"></select>
+      </div>
+      <div id="mealPlanView"></div>
+    </div>
+  </div>
+
+  <!-- FASTING TRACKER TAB -->
+  <div class="tab-content" id="tab-fasting">
+    <div class="card">
+      <h2>⏱️ Intermittent Fasting Tracker</h2>
+      <div class="fasting-timer" id="fastingTimer">
+        <div><strong>Current Fast</strong></div>
+        <div class="fasting-time" id="fastingTime">00:00:00</div>
+        <div id="fastingStatus">Not fasting</div>
+        <div style="margin-top:12px;display:flex;gap:8px;justify-content:center">
+          <button id="startFastBtn" class="btn">Start Fast</button>
+          <button id="endFastBtn" class="btn-secondary" style="display:none">End Fast</button>
+        </div>
+      </div>
+
+      <div class="card" style="background:rgba(0,0,0,0.02)">
+        <h3>Fasting History</h3>
+        <div id="fastingHistory"></div>
+      </div>
+
+      <div class="card" style="background:rgba(0,0,0,0.02)">
+        <h3>Quick Fasting Presets</h3>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn-secondary fasting-preset" data-hours="12">12 Hours</button>
+          <button class="btn-secondary fasting-preset" data-hours="14">14 Hours</button>
+          <button class="btn-secondary fasting-preset" data-hours="16">16 Hours (16:8)</button>
+          <button class="btn-secondary fasting-preset" data-hours="18">18 Hours</button>
+          <button class="btn-secondary fasting-preset" data-hours="20">20 Hours</button>
+          <button class="btn-secondary fasting-preset" data-hours="24">24 Hours</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WATER TRACKER TAB -->
+  <div class="tab-content" id="tab-water">
+    <div class="card">
+      <h2>💧 Water Intake Tracker</h2>
+      <div style="text-align:center;margin:20px 0">
+        <div style="font-size:48px;font-weight:bold;color:var(--blue)" id="waterTotal">0</div>
+        <div class="muted">ml / <span id="waterGoalDisplay">2000</span> ml</div>
+        <div class="progress-bar" style="margin-top:12px">
+          <div class="progress-fill" id="waterProgress" style="width:0%"></div>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:8px;justify-content:center;margin:20px 0;flex-wrap:wrap">
+        <button class="btn water-add" data-amount="100">+ 100ml</button>
+        <button class="btn water-add" data-amount="250">+ 250ml (Glass)</button>
+        <button class="btn water-add" data-amount="500">+ 500ml (Bottle)</button>
+        <button class="btn water-add" data-amount="1000">+ 1L</button>
+        <button class="btn-secondary" id="waterReset">Reset</button>
+      </div>
+
+      <div>
+        <label>Daily Water Goal (ml):</label>
+        <input type="number" id="waterGoalInput" class="input" value="2000" min="500" step="100" />
+      </div>
+
+      <div class="water-tracker" id="waterGlasses" style="justify-content:center;margin-top:20px"></div>
+
+      <div style="margin-top:20px">
+        <h3>Water Intake History (7 days)</h3>
+        <div id="waterHistory"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BODY METRICS TAB -->
+  <div class="tab-content" id="tab-metrics">
+    <div class="card">
+      <h2>📊 Body Metrics Tracker</h2>
+      
+      <div class="dashboard-grid">
+        <div class="stat-card">
+          <div class="stat-label">Current Weight</div>
+          <div class="stat-value" id="currentWeight">--</div>
+          <small class="muted">kg</small>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Body Fat %</div>
+          <div class="stat-value" id="currentBodyFat">--</div>
+          <small class="muted">%</small>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Goal Progress</div>
+          <div class="stat-value" id="weightProgress">--</div>
+          <small class="muted">kg to goal</small>
+        </div>
+      </div>
+
+      <div style="margin-top:20px">
+        <h3>Log New Measurement</h3>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;margin-top:8px">
+          <div>
+            <label>Weight (kg):</label>
+            <input type="number" id="metricWeight" class="input" step="0.1" placeholder="70.5" />
+          </div>
+          <div>
+            <label>Body Fat %:</label>
+            <input type="number" id="metricBodyFat" class="input" step="0.1" placeholder="20.0" />
+          </div>
+          <div>
+            <label>Waist (cm):</label>
+            <input type="number" id="metricWaist" class="input" step="0.1" placeholder="80" />
+          </div>
+          <div>
+            <label>Chest (cm):</label>
+            <input type="number" id="metricChest" class="input" step="0.1" placeholder="95" />
+          </div>
+          <div>
+            <label>Arms (cm):</label>
+            <input type="number" id="metricArms" class="input" step="0.1" placeholder="35" />
+          </div>
+          <div>
+            <label>Thighs (cm):</label>
+            <input type="number" id="metricThighs" class="input" step="0.1" placeholder="55" />
+          </div>
+        </div>
+        <div style="margin-top:12px">
+          <label>Notes:</label>
+          <textarea id="metricNotes" class="textarea" placeholder="Feeling energized, increased cardio this week..."></textarea>
+        </div>
+        <button id="logMetricBtn" class="btn" style="margin-top:8px">📊 Log Measurement</button>
+      </div>
+
+      <div style="margin-top:20px">
+        <h3>Progress Charts</h3>
+        <div id="metricsChart" class="metric-chart"></div>
+      </div>
+
+      <div style="margin-top:20px">
+        <h3>Measurement History</h3>
+        <div id="metricsHistory"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>🎯 Set Weight Goal</h2>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div>
+          <label>Current Weight (kg):</label>
+          <input type="number" id="goalCurrentWeight" class="input" step="0.1" />
+        </div>
+        <div>
+          <label>Target Weight (kg):</label>
+          <input type="number" id="goalTargetWeight" class="input" step="0.1" />
+        </div>
+      </div>
+      <div style="margin-top:12px">
+        <label>Goal Type:</label>
+        <select id="goalType" class="input">
+          <option value="lose">Lose Weight</option>
+          <option value="maintain">Maintain Weight</option>
+          <option value="gain">Gain Weight (Muscle)</option>
+        </select>
+      </div>
+      <button id="saveWeightGoalBtn" class="btn" style="margin-top:12px">Save Goal</button>
+    </div>
+  </div>
+
+  <!-- SHOPPING LIST TAB -->
+  <div class="tab-content" id="tab-shopping">
+    <div class="card">
+      <h2>🛒 Shopping List</h2>
+      <div style="display:flex;gap:8px;margin-bottom:12px">
+        <button id="generateShoppingListBtn" class="btn">✨ Generate from Meal Plan</button>
+        <button id="clearShoppingListBtn" class="btn-secondary">Clear All</button>
+      </div>
+
+      <div style="display:flex;gap:8px;margin-bottom:12px">
+        <input type="text" id="shoppingItemInput" class="input" placeholder="Add item..." />
+        <button id="addShoppingItemBtn" class="btn">+ Add</button>
+      </div>
+
+      <ul class="shopping-list" id="shoppingList"></ul>
+    </div>
+  </div>
+
+  <!-- SETTINGS TAB -->
+  <div class="tab-content" id="tab-settings">
+    <div class="card">
+      <h2>⚙️ Settings & Preferences</h2>
+      
+      <h3>Macro Calculator</h3>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:8px">
+        <div>
+          <label>Weight (kg):</label>
+          <input type="number" id="calcWeight" class="input" placeholder="70" />
+        </div>
+        <div>
+          <label>Goal:</label>
+          <select id="calcGoal" class="input">
+            <option value="lose">Lose Weight</option>
+            <option value="maintain">Maintain</option>
+            <option value="gain">Gain Muscle</option>
+          </select>
+        </div>
+        <div>
+          <label>Activity Level:</label>
+          <select id="calcActivity" class="input">
+            <option value="sedentary">Sedentary</option>
+            <option value="light">Light Activity</option>
+            <option value="moderate">Moderate</option>
+            <option value="active">Very Active</option>
+          </select>
+        </div>
+      </div>
+      <button id="calculateMacrosBtn" class="btn" style="margin-top:12px">Calculate Macros</button>
+      <div id="macroResults" style="margin-top:12px"></div>
+    </div>
+
+    <div class="card">
+      <h3>Notification Settings</h3>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <label style="display:flex;align-items:center;gap:8px">
+          <input type="checkbox" id="notifyMeals" />
+          <span>Meal reminders</span>
+        </label>
+        <label style="display:flex;align-items:center;gap:8px">
+          <input type="checkbox" id="notifyWater" />
+          <span>Water intake reminders</span>
+        </label>
+        <label style="display:flex;align-items:center;gap:8px">
+          <input type="checkbox" id="notifyFasting" />
+          <span>Fasting window reminders</span>
+        </label>
+        <button id="requestNotificationBtn" class="btn-secondary">Enable Notifications</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Data Management</h3>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <button id="exportDataBtn" class="btn">📥 Export All Data (JSON)</button>
+        <button id="importDataBtn" class="btn-secondary">📤 Import Data</button>
+        <input type="file" id="importFileInput" accept=".json" style="display:none" />
+        <button id="clearAllDataBtn" class="btn-secondary" style="background:var(--red);color:white">⚠️ Clear All Data</button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="muted">
+    FoodLog Pro v2.0 • Uses Open Food Facts & Edamam APIs
+  </footer>
+</div>
+
+<input type="file" id="photoInput" accept="image/*" capture="environment" style="display:none" />
+
+<!-- Goals Modal -->
+<div id="goalsModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);align-items:center;justify-content:center;z-index:60">
+  <div style="background:var(--card);padding:12px;border-radius:10px;width:94%;max-width:620px;max-height:80vh;overflow:auto">
+    <h3 style="margin:0 0 12px 0">Set Your Goals</h3>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div class="goal-input">
+        <label style="width:120px">Calories (kcal):</label>
+        <input id="goalCalories" class="input" type="number" min="0" placeholder="2000" />
+      </div>
+      <div class="goal-input">
+        <label style="width:120px">Protein (g):</label>
+        <input id="goalProtein" class="input" type="number" min="0" placeholder="150" />
+      </div>
+      <div class="goal-input">
+        <label style="width:120px">Carbs (g):</label>
+        <input id="goalCarbs" class="input" type="number" min="0" placeholder="200" />
+      </div>
+      <div class="goal-input">
+        <label style="width:120px">Fat (g):</label>
+        <input id="goalFat" class="input" type="number" min="0" placeholder="65" />
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px">
+        <button id="goalsCancel" class="btn-secondary">Cancel</button>
+        <button id="goalsSave" class="btn">Save Goals</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Recipe Modal -->
+<div id="recipeModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);align-items:center;justify-content:center;z-index:60">
+  <div style="background:var(--card);padding:12px;border-radius:10px;width:94%;max-width:720px;max-height:80vh;overflow:auto">
+    <h3 style="margin:0 0 12px 0">My Recipes</h3>
+    <div style="margin-bottom:12px">
+      <button id="createRecipeBtn" class="btn">+ Create New Recipe</button>
+    </div>
+    <div id="recipeList"></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
+      <button id="recipeClose" class="btn-secondary">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Create Recipe Modal -->
+<div id="createRecipeModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);align-items:center;justify-content:center;z-index:65">
+  <div style="background:var(--card);padding:12px;border-radius:10px;width:94%;max-width:620px;max-height:80vh;overflow:auto">
+    <h3 style="margin:0 0 12px 0">Create Recipe</h3>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <input id="recipeName" class="input" placeholder="Recipe name (e.g., 'My Protein Smoothie')" />
+      <input id="recipeServings" class="input" type="number" min="1" placeholder="Number of servings" value="1" />
+      <div id="recipeIngredients" class="recipe-ingredients">
+        <label style="font-weight:bold;margin-bottom:8px;display:block">Ingredients:</label>
+        <small class="muted">Select foods from search and add them as ingredients</small>
+      </div>
+      <div id="recipeError" class="error-text" style="display:none"></div>
+      <div style="display:flex;gap:8px;justify-content:flex-end">
+        <button id="recipeCreateCancel" class="btn-secondary">Cancel</button>
+        <button id="recipeCreateSave" class="btn">Save Recipe</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Manual Add Modal -->
+<div id="manualModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);align-items:center;justify-content:center;z-index:60">
+  <div style="background:var(--card);padding:12px;border-radius:10px;width:94%;max-width:620px">
+    <h3 style="margin:0 0 8px 0">Manual Add Food</h3>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <input id="manualName" class="input" placeholder="Product name (required)" />
+      <input id="manualBarcode" class="input" placeholder="Barcode (optional)" />
+      <input id="manualQty" class="input" placeholder="Default qty per item (g)" type="number" min="0" value="100" />
+      <label style="font-size:12px;opacity:0.8">Nutrients per 100g:</label>
+      <input id="manualCalories" class="input" placeholder="Calories (kcal)" type="number" min="0" />
+      <input id="manualProtein" class="input" placeholder="Protein (g)" type="number" min="0" />
+      <input id="manualCarbs" class="input" placeholder="Carbs (g)" type="number" min="0" />
+      <input id="manualFat" class="input" placeholder="Fat (g)" type="number" min="0" />
+      <div id="manualError" class="error-text" style="display:none"></div>
+      <div style="display:flex;gap:8px;justify-content:flex-end">
+        <button id="manualCancel" class="btn-secondary">Cancel</button>
+        <button id="manualSave" class="btn">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Supplement Modal -->
+<div id="supplementModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);align-items:center;justify-content:center;z-index:60">
+  <div style="background:var(--card);padding:12px;border-radius:10px;width:94%;max-width:620px;max-height:80vh;overflow:auto">
+    <h3 style="margin:0 0 8px 0">Log Supplement/Micronutrients</h3>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <input id="suppName" class="input" placeholder="Supplement name (e.g., 'Multivitamin', 'Vitamin D')" />
+      <label style="font-size:12px;opacity:0.8">Micronutrients (leave blank if not applicable):</label>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <input id="suppVitA" class="input" placeholder="Vitamin A (µg)" type="number" min="0" step="0.1" />
+        <input id="suppVitC" class="input" placeholder="Vitamin C (mg)" type="number" min="0" step="0.1" />
+        <input id="suppVitD" class="input" placeholder="Vitamin D (µg)" type="number" min="0" step="0.1" />
+        <input id="suppVitE" class="input" placeholder="Vitamin E (mg)" type="number" min="0" step="0.1" />
+        <input id="suppVitK" class="input" placeholder="Vitamin K (µg)" type="number" min="0" step="0.1" />
+        <input id="suppVitB12" class="input" placeholder="Vitamin B12 (µg)" type="number" min="0" step="0.1" />
+        <input id="suppCalcium" class="input" placeholder="Calcium (mg)" type="number" min="0" step="0.1" />
+        <input id="suppIron" class="input" placeholder="Iron (mg)" type="number" min="0" step="0.1" />
+        <input id="suppMagnesium" class="input" placeholder="Magnesium (mg)" type="number" min="0" step="0.1" />
+        <input id="suppZinc" class="input" placeholder="Zinc (mg)" type="number" min="0" step="0.1" />
+        <input id="suppOmega3" class="input" placeholder="Omega-3 (mg)" type="number" min="0" step="0.1" />
+        <input id="suppFiber" class="input" placeholder="Fiber (g)" type="number" min="0" step="0.1" />
+      </div>
+      <select id="suppMeal" class="input">
+        <option value="breakfast">Breakfast</option>
+        <option value="lunch">Lunch</option>
+        <option value="dinner">Dinner</option>
+        <option value="snack">Snack</option>
+      </select>
+      <div id="suppError" class="error-text" style="display:none"></div>
+      <div style="display:flex;gap:8px;justify-content:flex-end">
+        <button id="suppCancel" class="btn-secondary">Cancel</button>
+        <button id="suppSave" class="btn">Log Supplement</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Modal -->
+<div id="editModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);align-items:center;justify-content:center;z-index:60">
+  <div style="background:var(--card);padding:12px;border-radius:10px;width:94%;max-width:620px;max-height:80vh;overflow:auto">
+    <h3 style="margin:0 0 8px 0">Edit Entry</h3>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div><strong id="editProductName"></strong></div>
+      <label>Quantity (g):</label>
+      <input id="editQty" class="input" type="number" min="1" />
+      <label>Meal:</label>
+      <select id="editMeal" class="input">
+        <option value="breakfast">Breakfast</option>
+        <option value="lunch">Lunch</option>
+        <option value="dinner">Dinner</option>
+        <option value="snack">Snack</option>
+      </select>
+      <div>
+        <label>Mood:</label>
+        <div class="mood-selector">
+          <span class="mood-emoji" data-mood="😊">😊</span>
+          <span class="mood-emoji" data-mood="😐">😐</span>
+          <span class="mood-emoji" data-mood="😔">😔</span>
+          <span class="mood-emoji" data-mood="😡">😡</span>
+          <span class="mood-emoji" data-mood="😴">😴</span>
+          <span class="mood-emoji" data-mood="🤩">🤩</span>
+        </div>
+      </div>
+      <div>
+        <label>Hunger Level (1-10):</label>
+        <input id="editHunger" class="input" type="number" min="1" max="10" placeholder="5" />
+      </div>
+      <div>
+        <label>Notes:</label>
+        <textarea id="editNotes" class="textarea" placeholder="How did you feel after this meal?"></textarea>
+      </div>
+      <div id="editNutrients" style="margin-top:8px"></div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px">
+        <button id="editCancel" class="btn-secondary">Cancel</button>
+        <button id="editSave" class="btn">Save Changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Meal Plan Day Modal -->
+<div id="mealPlanDayModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);align-items:center;justify-content:center;z-index:60">
+  <div style="background:var(--card);padding:12px;border-radius:10px;width:94%;max-width:620px;max-height:80vh;overflow:auto">
+    <h3 style="margin:0 0 12px 0">Plan Meals for <span id="planDayName"></span></h3>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div>
+        <label>Breakfast:</label>
+        <select id="planBreakfast" class="input">
+          <option value="">-- Select Recipe --</option>
+        </select>
+      </div>
+      <div>
+        <label>Lunch:</label>
+        <select id="planLunch" class="input">
+          <option value="">-- Select Recipe --</option>
+        </select>
+      </div>
+      <div>
+        <label>Dinner:</label>
+        <select id="planDinner" class="input">
+          <option value="">-- Select Recipe --</option>
+        </select>
+      </div>
+      <div>
+        <label>Snacks:</label>
+        <input id="planSnacks" class="input" placeholder="Enter snack items separated by commas" />
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end">
+        <button id="planDayCancel" class="btn-secondary">Cancel</button>
+        <button id="planDaySave" class="btn">Save Day</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Photo Preview Modal -->
+<div id="photoModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.9);align-items:center;justify-content:center;z-index:70">
+  <div style="background:var(--card);padding:12px;border-radius:10px;width:94%;max-width:800px;max-height:90vh;overflow:auto">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <h3 style="margin:0">Food Photo</h3>
+      <button id="photoModalClose" class="btn-secondary">✕</button>
+    </div>
+    <img id="photoPreview" style="width:100%;height:auto;border-radius:8px" />
+    <div style="margin-top:12px">
+      <label>Add notes about this meal:</label>
+      <textarea id="photoNotes" class="textarea" placeholder="What did you eat? How did it taste?"></textarea>
+    </div>
+  </div>
+</div>
+
+<!-- Notification Permission Modal -->
+<div id="notificationModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);align-items:center;justify-content:center;z-index:60">
+  <div style="background:var(--card);padding:12px;border-radius:10px;width:94%;max-width:500px">
+    <h3 style="margin:0 0 12px 0">🔔 Enable Notifications</h3>
+    <p>Get reminders for:</p>
+    <ul>
+      <li>Meal times</li>
+      <li>Water intake</li>
+      <li>Fasting windows</li>
+      <li>Daily logging reminders</li>
+    </ul>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px">
+      <button id="notifModalCancel" class="btn-secondary">Not Now</button>
+      <button id="notifModalAllow" class="btn">Allow Notifications</button>
+    </div>
+  </div>
+</div>
+
+<!-- Voice Input Modal -->
+<div id="voiceModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);align-items:center;justify-content:center;z-index:60">
+  <div style="background:var(--card);padding:24px;border-radius:10px;width:94%;max-width:500px;text-align:center">
+    <div style="font-size:48px;margin-bottom:16px">🎤</div>
+    <h3 style="margin:0 0 12px 0">Listening...</h3>
+    <p class="muted">Say something like: "I ate 200 grams of chicken breast for lunch"</p>
+    <div id="voiceTranscript" style="margin-top:16px;padding:12px;background:rgba(0,0,0,0.05);border-radius:8px;min-height:60px"></div>
+    <button id="voiceModalClose" class="btn-secondary" style="margin-top:16px">Cancel</button>
+  </div>
+</div>
+
+<!-- Undo Bar -->
+<div id="undoBar" class="undo-bar">
+  <span id="undoMessage">Entry deleted</span>
+  <button id="undoAction" class="btn-small btn">Undo</button>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="toast"></div>
+
+<script>
+
+// Database Configuration
+const DB_NAME = 'foodlog-pro-v4';
+const STORE_ENTRIES = 'entries';
+const STORE_GOALS = 'goals';
+const STORE_FAVORITES = 'favorites';
+const STORE_RECENT = 'recent';
+const STORE_RECIPES = 'recipes';
+const STORE_MEAL_PLANS = 'mealPlans';
+const STORE_WATER = 'waterIntake';
+const STORE_FASTING = 'fastingHistory';
+const STORE_METRICS = 'bodyMetrics';
+const STORE_SHOPPING = 'shoppingList';
+const STORE_SETTINGS = 'settings';
+let dbPromise = null;
+
+// Edamam API Configuration
+const EDAMAM_CONFIG = {
+  nutrition: {
+    appId: '1fa0293d',
+    appKey: '69584867bc09ab2f63471b374e483735',
+    endpoint: 'https://api.edamam.com/api/nutrition-details'
+  },
+  foodDb: {
+    appId: '9b98ad50',
+    appKey: 'bb4b2682adca1e70b05af982262a606f',
+    endpoint: 'https://api.edamam.com/api/food-database/v2/parser'
+  },
+  mealPlanner: {
+    appId: '032957a4',
+    appKey: 'd9cc8e67d86470ba434ab92bfb7bd55a',
+    endpoint: 'https://api.edamam.com/api/meal-planner/v1'
+  }
+};
+
+// Database Functions
+function openDB() {
+  if (dbPromise) return dbPromise;
+  dbPromise = new Promise((resolve, reject) => {
+    const r = indexedDB.open(DB_NAME, 4);
+    r.onupgradeneeded = () => {
+      const db = r.result;
+      if (!db.objectStoreNames.contains(STORE_ENTRIES)) db.createObjectStore(STORE_ENTRIES, {keyPath: 'id'});
+      if (!db.objectStoreNames.contains(STORE_GOALS)) db.createObjectStore(STORE_GOALS, {keyPath: 'id'});
+      if (!db.objectStoreNames.contains(STORE_FAVORITES)) db.createObjectStore(STORE_FAVORITES, {keyPath: 'id'});
+      if (!db.objectStoreNames.contains(STORE_RECENT)) db.createObjectStore(STORE_RECENT, {keyPath: 'id'});
+      if (!db.objectStoreNames.contains(STORE_RECIPES)) db.createObjectStore(STORE_RECIPES, {keyPath: 'id'});
+      if (!db.objectStoreNames.contains(STORE_MEAL_PLANS)) db.createObjectStore(STORE_MEAL_PLANS, {keyPath: 'id'});
+      if (!db.objectStoreNames.contains(STORE_WATER)) db.createObjectStore(STORE_WATER, {keyPath: 'id'});
+      if (!db.objectStoreNames.contains(STORE_FASTING)) db.createObjectStore(STORE_FASTING, {keyPath: 'id'});
+      if (!db.objectStoreNames.contains(STORE_METRICS)) db.createObjectStore(STORE_METRICS, {keyPath: 'id'});
+      if (!db.objectStoreNames.contains(STORE_SHOPPING)) db.createObjectStore(STORE_SHOPPING, {keyPath: 'id'});
+      if (!db.objectStoreNames.contains(STORE_SETTINGS)) db.createObjectStore(STORE_SETTINGS, {keyPath: 'id'});
+    };
+    r.onsuccess = () => resolve(r.result);
+    r.onerror = () => reject(r.error);
+  });
+  return dbPromise;
+}
+
+async function saveToStore(storeName, item) {
+  try {
+    const db = await openDB();
+    return new Promise((res, rej) => {
+      const tx = db.transaction(storeName, 'readwrite');
+      tx.objectStore(storeName).put(item);
+      tx.oncomplete = () => res(item);
+      tx.onerror = () => rej(tx.error);
+    });
+  } catch (e) {
+    console.error('DB save error:', e);
+    throw e;
+  }
+}
+
+async function getAllFromStore(storeName) {
+  try {
+    const db = await openDB();
+    return new Promise((res, rej) => {
+      const tx = db.transaction(storeName, 'readonly');
+      const req = tx.objectStore(storeName).getAll();
+      req.onsuccess = () => res(req.result);
+      req.onerror = () => rej(req.error);
+    });
+  } catch (e) {
+    console.error('DB read error:', e);
+    return [];
+  }
+}
+
+async function deleteFromStore(storeName, id) {
+  try {
+    const db = await openDB();
+    return new Promise((res, rej) => {
+      const tx = db.transaction(storeName, 'readwrite');
+      tx.objectStore(storeName).delete(id);
+      tx.oncomplete = () => res();
+      tx.onerror = () => rej(tx.error);
+    });
+  } catch (e) {
+    console.error('DB delete error:', e);
+    throw e;
+  }
+}
+
+async function clearStore(storeName) {
+  try {
+    const db = await openDB();
+    return new Promise((res, rej) => {
+      const tx = db.transaction(storeName, 'readwrite');
+      tx.objectStore(storeName).clear();
+      tx.oncomplete = () => res();
+      tx.onerror = () => rej(tx.error);
+    });
+  } catch (e) {
+    console.error('DB clear error:', e);
+    throw e;
+  }
+}
+
+// Store-specific helpers
+const saveEntry = (entry) => saveToStore(STORE_ENTRIES, entry);
+const getAllEntries = () => getAllFromStore(STORE_ENTRIES).then(items => items.sort((a, b) => b.timestamp - a.timestamp));
+const deleteEntry = (id) => deleteFromStore(STORE_ENTRIES, id);
+
+const saveGoals = (goals) => saveToStore(STORE_GOALS, {id: 'user-goals', ...goals});
+const getGoals = async () => {
+  const all = await getAllFromStore(STORE_GOALS);
+  const goals = all.find(g => g.id === 'user-goals');
+  return goals || {calories: 2000, protein: 150, carbs: 200, fat: 65};
+};
+
+const saveFavorite = (fav) => saveToStore(STORE_FAVORITES, fav);
+const getAllFavorites = () => getAllFromStore(STORE_FAVORITES);
+const deleteFavorite = (id) => deleteFromStore(STORE_FAVORITES, id);
+
+const saveRecent = (recent) => saveToStore(STORE_RECENT, recent);
+const getAllRecent = () => getAllFromStore(STORE_RECENT).then(items => items.sort((a, b) => b.timestamp - a.timestamp).slice(0, 20));
+
+const saveRecipe = (recipe) => saveToStore(STORE_RECIPES, recipe);
+const getAllRecipes = () => getAllFromStore(STORE_RECIPES);
+const deleteRecipe = (id) => deleteFromStore(STORE_RECIPES, id);
+
+const saveMealPlan = (plan) => saveToStore(STORE_MEAL_PLANS, plan);
+const getAllMealPlans = () => getAllFromStore(STORE_MEAL_PLANS);
+const deleteMealPlan = (id) => deleteFromStore(STORE_MEAL_PLANS, id);
+
+const saveWaterIntake = (water) => saveToStore(STORE_WATER, water);
+const getAllWaterIntake = () => getAllFromStore(STORE_WATER);
+const deleteWaterIntake = (id) => deleteFromStore(STORE_WATER, id);
+
+const saveFastingSession = (session) => saveToStore(STORE_FASTING, session);
+const getAllFastingSessions = () => getAllFromStore(STORE_FASTING);
+const deleteFastingSession = (id) => deleteFromStore(STORE_FASTING, id);
+
+const saveMetric = (metric) => saveToStore(STORE_METRICS, metric);
+const getAllMetrics = () => getAllFromStore(STORE_METRICS).then(items => items.sort((a, b) => b.timestamp - a.timestamp));
+const deleteMetric = (id) => deleteFromStore(STORE_METRICS, id);
+
+const saveShoppingItem = (item) => saveToStore(STORE_SHOPPING, item);
+const getAllShoppingItems = () => getAllFromStore(STORE_SHOPPING);
+const deleteShoppingItem = (id) => deleteFromStore(STORE_SHOPPING, id);
+const clearShoppingList = () => clearStore(STORE_SHOPPING);
+
+const saveSettings = (settings) => saveToStore(STORE_SETTINGS, {id: 'user-settings', ...settings});
+const getSettings = async () => {
+  const all = await getAllFromStore(STORE_SETTINGS);
+  const settings = all.find(s => s.id === 'user-settings');
+  return settings || {
+    waterGoal: 2000,
+    notifyMeals: false,
+    notifyWater: false,
+    notifyFasting: false,
+    weightGoal: null,
+    currentWeight: null,
+    targetWeight: null,
+    goalType: 'maintain'
+  };
+};
+
+// State Variables
+let selectedMeal = 'all';
+let activeMealFilter = 'all';
+let selectedProduct = null;
+let currentDate = new Date();
+let userGoals = {calories: 2000, protein: 150, carbs: 200, fat: 65};
+let undoStack = [];
+let activeSearchTab = 'search';
+let currentRecipeIngredients = [];
+let cameraStream = null;
+let scanningActive = false;
+let currentEditingEntry = null;
+let fastingStartTime = null;
+let fastingInterval = null;
+let waterIntakeToday = 0;
+let waterGoal = 2000;
+let currentMealPlan = null;
+let selectedHealthLabels = [];
+let voiceRecognition = null;
+let currentMood = null;
+let currentPhotoData = null;
+
+// DOM Elements - Core
+const darkToggle = document.getElementById('darkToggle');
+const undoBtn = document.getElementById('undoBtn');
+const undoBar = document.getElementById('undoBar');
+const undoMessage = document.getElementById('undoMessage');
+const undoAction = document.getElementById('undoAction');
+const toastEl = document.getElementById('toast');
+const spinner = document.getElementById('spinner');
+
+// DOM Elements - Search & Food
+const searchInput = document.getElementById('searchInput');
+const suggestionsEl = document.getElementById('suggestions');
+const selectedProductEl = document.getElementById('selectedProduct');
+const logList = document.getElementById('logList');
+const mealSummary = document.getElementById('mealSummary');
+const searchTabs = document.querySelectorAll('.search-tab');
+
+// DOM Elements - Modals
+const manualAddBtn = document.getElementById('manualAddBtn');
+const manualModal = document.getElementById('manualModal');
+const manualCancel = document.getElementById('manualCancel');
+const manualSave = document.getElementById('manualSave');
+const manualName = document.getElementById('manualName');
+const manualBarcode = document.getElementById('manualBarcode');
+const manualQty = document.getElementById('manualQty');
+const manualCalories = document.getElementById('manualCalories');
+const manualProtein = document.getElementById('manualProtein');
+const manualCarbs = document.getElementById('manualCarbs');
+const manualFat = document.getElementById('manualFat');
+const manualError = document.getElementById('manualError');
+
+const goalsBtn = document.getElementById('goalsBtn');
+const goalsModal = document.getElementById('goalsModal');
+const goalsCancel = document.getElementById('goalsCancel');
+const goalsSave = document.getElementById('goalsSave');
+
+const recipesBtn = document.getElementById('recipesBtn');
+const recipeModal = document.getElementById('recipeModal');
+const recipeClose = document.getElementById('recipeClose');
+const createRecipeBtn = document.getElementById('createRecipeBtn');
+const recipeList = document.getElementById('recipeList');
+
+const createRecipeModal = document.getElementById('createRecipeModal');
+const recipeName = document.getElementById('recipeName');
+const recipeServings = document.getElementById('recipeServings');
+const recipeIngredients = document.getElementById('recipeIngredients');
+const recipeError = document.getElementById('recipeError');
+const recipeCreateCancel = document.getElementById('recipeCreateCancel');
+const recipeCreateSave = document.getElementById('recipeCreateSave');
+
+const supplementBtn = document.getElementById('supplementBtn');
+const supplementModal = document.getElementById('supplementModal');
+const suppCancel = document.getElementById('suppCancel');
+const suppSave = document.getElementById('suppSave');
+const suppName = document.getElementById('suppName');
+const suppError = document.getElementById('suppError');
+
+const editModal = document.getElementById('editModal');
+const editCancel = document.getElementById('editCancel');
+const editSave = document.getElementById('editSave');
+const editProductName = document.getElementById('editProductName');
+const editQty = document.getElementById('editQty');
+const editMeal = document.getElementById('editMeal');
+const editNutrients = document.getElementById('editNutrients');
+const editHunger = document.getElementById('editHunger');
+const editNotes = document.getElementById('editNotes');
+
+// DOM Elements - Barcode
+const scanBtn = document.getElementById('scanBtn');
+const stopScanBtn = document.getElementById('stopScanBtn');
+const barcodeCard = document.getElementById('barcodeCard');
+const barcodeVideo = document.getElementById('barcodeVideo');
+const barcodeStatus = document.getElementById('barcodeStatus');
+const pasteBarcodeBtn = document.getElementById('pasteBarcodeBtn');
+
+// DOM Elements - Photo
+const photoBtn = document.getElementById('photoBtn');
+const photoInput = document.getElementById('photoInput');
+const photoModal = document.getElementById('photoModal');
+const photoModalClose = document.getElementById('photoModalClose');
+const photoPreview = document.getElementById('photoPreview');
+const photoNotes = document.getElementById('photoNotes');
+
+// DOM Elements - Date Navigation
+const datePicker = document.getElementById('datePicker');
+const prevDay = document.getElementById('prevDay');
+const nextDay = document.getElementById('nextDay');
+const todayBtn = document.getElementById('todayBtn');
+const historyView = document.getElementById('historyView');
+const dashboardContent = document.getElementById('dashboardContent');
+
+// DOM Elements - Voice
+const voiceBtn = document.getElementById('voiceBtn');
+const voiceModal = document.getElementById('voiceModal');
+const voiceModalClose = document.getElementById('voiceModalClose');
+const voiceTranscript = document.getElementById('voiceTranscript');
+
+// DOM Elements - Notifications
+const notificationBtn = document.getElementById('notificationBtn');
+const notificationModal = document.getElementById('notificationModal');
+const notifModalCancel = document.getElementById('notifModalCancel');
+const notifModalAllow = document.getElementById('notifModalAllow');
+const requestNotificationBtn = document.getElementById('requestNotificationBtn');
+
+// DOM Elements - Export/Import
+const exportBtn = document.getElementById('exportBtn');
+const importBtn = document.getElementById('importBtn');
+const exportDataBtn = document.getElementById('exportDataBtn');
+const importDataBtn = document.getElementById('importDataBtn');
+const importFileInput = document.getElementById('importFileInput');
+const clearAllDataBtn = document.getElementById('clearAllDataBtn');
+
+// Utility Functions
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({'&': '&amp;','<': '&lt;','>': '&gt;','"': '&quot;',"'": '&#39;'}[c]));
+}
+
+function showToast(msg) {
+  toastEl.textContent = msg;
+  toastEl.classList.add('show');
+  setTimeout(() => toastEl.classList.remove('show'), 2500);
+}
+
+function capitalize(s) {
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+function formatDate(d) {
+  return d.toLocaleDateString('en-US', {weekday: 'short', month: 'short', day: 'numeric', year: 'numeric'});
+}
+
+function isSameDay(d1, d2) {
+  return d1.getFullYear() === d2.getFullYear() && d1.getMonth() === d2.getMonth() && d1.getDate() === d2.getDate();
+}
+
+function formatTime(ms) {
+  const hours = Math.floor(ms / 3600000);
+  const minutes = Math.floor((ms % 3600000) / 60000);
+  const seconds = Math.floor((ms % 60000) / 1000);
+  return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+}
+
+function generateUUID() {
+  return crypto.randomUUID();
+}
+
+// Theme Handling
+const savedTheme = localStorage.getItem('theme') || 'light';
+document.body.setAttribute('data-theme', savedTheme);
+darkToggle.textContent = savedTheme === 'dark' ? '☀️ Light' : '🌙 Dark';
+darkToggle.addEventListener('click', () => {
+  const currentTheme = document.body.getAttribute('data-theme');
+  const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+  document.body.setAttribute('data-theme', newTheme);
+  localStorage.setItem('theme', newTheme);
+  darkToggle.textContent = newTheme === 'dark' ? '☀️ Light' : '🌙 Dark';
+});
+
+// Undo Functionality
+function pushUndo(action, data) {
+  undoStack.push({action, data, timestamp: Date.now()});
+  undoBtn.style.display = 'inline-block';
+  setTimeout(() => {
+    undoStack = undoStack.filter(u => Date.now() - u.timestamp < 10000);
+    if (undoStack.length === 0) undoBtn.style.display = 'none';
+  }, 10000);
+}
+
+function showUndoBar(message) {
+  undoMessage.textContent = message;
+  undoBar.classList.add('show');
+  setTimeout(() => undoBar.classList.remove('show'), 5000);
+}
+
+undoBtn.addEventListener('click', async () => {
+  const last = undoStack.pop();
+  if (!last) return;
+  if (last.action === 'delete') {
+    await saveEntry(last.data);
+    showToast('Entry restored ✓');
+    renderLogEntries();
+    renderDashboard();
+  }
+  if (undoStack.length === 0) undoBtn.style.display = 'none';
+});
+
+undoAction.addEventListener('click', async () => {
+  const last = undoStack.pop();
+  if (!last) return;
+  if (last.action === 'delete') {
+    await saveEntry(last.data);
+    showToast('Entry restored ✓');
+    renderLogEntries();
+    renderDashboard();
+  }
+  undoBar.classList.remove('show');
+  if (undoStack.length === 0) undoBtn.style.display = 'none';
+});
+
+// Click outside to close suggestions
+document.addEventListener('click', (e) => {
+  if (!searchInput.contains(e.target) && !suggestionsEl.contains(e.target)) {
+    suggestionsEl.style.display = 'none';
+  }
+});
+
+// Edamam API Functions
+
+// Search Edamam Food Database
+async function searchEdamamFoodDB(term) {
+  if (!term || term.trim().length < 2) return [];
+  try {
+    const url = `${EDAMAM_CONFIG.foodDb.endpoint}?app_id=${EDAMAM_CONFIG.foodDb.appId}&app_key=${EDAMAM_CONFIG.foodDb.appKey}&ingr=${encodeURIComponent(term)}&nutrition-type=logging`;
+    const res = await fetch(url);
+    if (!res.ok) return [];
+    const data = await res.json();
+    
+    return data.hints.slice(0, 10).map(hint => ({
+      code: hint.food.foodId,
+      product_name: hint.food.label + (hint.food.brand ? ` (${hint.food.brand})` : ''),
+      brand: hint.food.brand || '',
+      nutriments: {
+        'energy-kcal_100g': hint.food.nutrients.ENERC_KCAL || 0,
+        'proteins_100g': hint.food.nutrients.PROCNT || 0,
+        'carbohydrates_100g': hint.food.nutrients.CHOCDF || 0,
+        'fat_100g': hint.food.nutrients.FAT || 0,
+        'fiber_100g': hint.food.nutrients.FIBTG || 0,
+        'calcium_100g': hint.food.nutrients.CA ? hint.food.nutrients.CA / 10 : 0,
+        'iron_100g': hint.food.nutrients.FE ? hint.food.nutrients.FE / 10 : 0,
+        'magnesium_100g': hint.food.nutrients.MG ? hint.food.nutrients.MG / 10 : 0,
+        'vitamin-a_100g': hint.food.nutrients.VITA_RAE ? hint.food.nutrients.VITA_RAE / 10 : 0,
+        'vitamin-c_100g': hint.food.nutrients.VITC ? hint.food.nutrients.VITC / 10 : 0,
+        'vitamin-d_100g': hint.food.nutrients.VITD ? hint.food.nutrients.VITD / 10 : 0
+      },
+      product: hint.food,
+      isEdamam: true
+    }));
+  } catch (e) {
+    console.warn('Edamam search error', e);
+    return [];
+  }
+}
+
+// Get AI Meal Suggestions from Edamam
+async function getAIMealSuggestions(calories, diet = 'balanced', health = []) {
+  try {
+    let url = `${EDAMAM_CONFIG.mealPlanner.endpoint}/${calories}/day?app_id=${EDAMAM_CONFIG.mealPlanner.appId}&app_key=${EDAMAM_CONFIG.mealPlanner.appKey}`;
+    
+    if (diet && diet !== 'balanced') {
+      url += `&diet=${diet}`;
+    }
+    
+    if (health && health.length > 0) {
+      health.forEach(label => {
+        url += `&health=${label}`;
+      });
+    }
+    
+    const res = await fetch(url);
+    if (!res.ok) {
+      throw new Error('Failed to fetch meal suggestions');
+    }
+    
+    const data = await res.json();
+    return data.selection || [];
+  } catch (e) {
+    console.error('Meal suggestions error:', e);
+    throw e;
+  }
+}
+
+// Analyze Recipe Nutrition with Edamam
+async function analyzeRecipeNutrition(title, ingredients) {
+  try {
+    const url = `${EDAMAM_CONFIG.nutrition.endpoint}?app_id=${EDAMAM_CONFIG.nutrition.appId}&app_key=${EDAMAM_CONFIG.nutrition.appKey}`;
+    
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        title: title,
+        ingr: ingredients
+      })
+    });
+    
+    if (!res.ok) {
+      const errorData = await res.json();
+      throw new Error(errorData.error || 'Failed to analyze recipe');
+    }
+    
+    const data = await res.json();
+    
+    return {
+      calories: Math.round(data.calories),
+      totalWeight: Math.round(data.totalWeight),
+      protein: Math.round(data.totalNutrients.PROCNT?.quantity || 0),
+      carbs: Math.round(data.totalNutrients.CHOCDF?.quantity || 0),
+      fat: Math.round(data.totalNutrients.FAT?.quantity || 0),
+      fiber: Math.round(data.totalNutrients.FIBTG?.quantity || 0),
+      sugar: Math.round(data.totalNutrients.SUGAR?.quantity || 0),
+      sodium: Math.round(data.totalNutrients.NA?.quantity || 0),
+      vitamins: {
+        vitamin_a: Math.round(data.totalNutrients.VITA_RAE?.quantity || 0),
+        vitamin_c: Math.round(data.totalNutrients.VITC?.quantity || 0),
+        vitamin_d: Math.round(data.totalNutrients.VITD?.quantity || 0),
+        vitamin_e: Math.round(data.totalNutrients.TOCPHA?.quantity || 0),
+        vitamin_k: Math.round(data.totalNutrients.VITK1?.quantity || 0),
+        vitamin_b6: Math.round(data.totalNutrients.VITB6A?.quantity || 0),
+        vitamin_b12: Math.round(data.totalNutrients.VITB12?.quantity || 0),
+        folate: Math.round(data.totalNutrients.FOLDFE?.quantity || 0),
+        thiamin: Math.round(data.totalNutrients.THIA?.quantity || 0),
+        riboflavin: Math.round(data.totalNutrients.RIBF?.quantity || 0),
+        niacin: Math.round(data.totalNutrients.NIA?.quantity || 0)
+      },
+      minerals: {
+        calcium: Math.round(data.totalNutrients.CA?.quantity || 0),
+        iron: Math.round(data.totalNutrients.FE?.quantity || 0),
+        magnesium: Math.round(data.totalNutrients.MG?.quantity || 0),
+        phosphorus: Math.round(data.totalNutrients.P?.quantity || 0),
+        potassium: Math.round(data.totalNutrients.K?.quantity || 0),
+        zinc: Math.round(data.totalNutrients.ZN?.quantity || 0)
+      },
+      dailyPercent: data.totalDaily || {}
+    };
+  } catch (e) {
+    console.error('Recipe analysis error:', e);
+    throw e;
+  }
+}
+
+// Edamam UI Event Handlers
+document.getElementById('edamamSearchBtn')?.addEventListener('click', async () => {
+  const query = document.getElementById('edamamSearchInput').value.trim();
+  if (!query) {
+    showToast('Please enter a search term');
+    return;
+  }
+  
+  const resultsDiv = document.getElementById('edamamSearchResults');
+  resultsDiv.innerHTML = '<p class="muted">Searching Edamam database...</p>';
+  
+  try {
+    const results = await searchEdamamFoodDB(query);
+    
+    if (results.length === 0) {
+      resultsDiv.innerHTML = '<p class="muted">No results found. Try a different search term.</p>';
+      return;
+    }
+    
+    let html = '<div style="display:flex;flex-direction:column;gap:8px">';
+    results.forEach(item => {
+      const n = item.nutriments;
+      html += `
+        <div class="card" style="background:rgba(0,0,0,0.02)">
+          <div style="display:flex;justify-content:space-between;align-items:start">
+            <div>
+              <strong>${escapeHtml(item.product_name)}</strong>
+              ${item.brand ? `<div><small class="muted">Brand: ${escapeHtml(item.brand)}</small></div>` : ''}
+            </div>
+            <button class="btn-secondary btn-small add-edamam-food" data-food='${JSON.stringify(item).replace(/'/g, "&#39;")}'>Add to Log</button>
+          </div>
+          <div class="nutri-grid">
+            <div class="nutri"><strong>${n['energy-kcal_100g']}</strong> kcal</div>
+            <div class="nutri"><strong>${n['proteins_100g']}g</strong> protein</div>
+            <div class="nutri"><strong>${n['carbohydrates_100g']}g</strong> carbs</div>
+            <div class="nutri"><strong>${n['fat_100g']}g</strong> fat</div>
+          </div>
+        </div>
+      `;
+    });
+    html += '</div>';
+    resultsDiv.innerHTML = html;
+    
+    document.querySelectorAll('.add-edamam-food').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const foodData = JSON.parse(btn.dataset.food);
+        selectedProduct = foodData;
+        renderSelectedProduct();
+        showToast('Food selected! Set quantity and log it.');
+        document.querySelector('.tab-btn[data-tab="today"]').click();
+      });
+    });
+    
+  } catch (e) {
+    resultsDiv.innerHTML = `<p class="error-text">Error: ${e.message}</p>`;
+  }
+});
+
+document.getElementById('getAISuggestionsBtn')?.addEventListener('click', async () => {
+  const calories = parseInt(document.getElementById('aiCalorieTarget').value) || 2000;
+  const diet = document.getElementById('aiDietType').value;
+  
+  const resultsDiv = document.getElementById('aiSuggestionsResult');
+  resultsDiv.innerHTML = '<div class="ai-suggestion">🤖 Generating personalized meal plan...</div>';
+  
+  try {
+    const suggestions = await getAIMealSuggestions(calories, diet, selectedHealthLabels);
+    
+    if (!suggestions || suggestions.length === 0) {
+      resultsDiv.innerHTML = '<p class="muted">No suggestions available. Try different preferences.</p>';
+      return;
+    }
+    
+    let html = '<h3>Your AI Meal Plan</h3>';
+    
+    const mealTypes = ['breakfast', 'lunch', 'dinner'];
+    mealTypes.forEach((mealType, idx) => {
+      if (suggestions[idx]) {
+        const section = suggestions[idx].section;
+        html += `
+          <div class="card" style="background:rgba(0,0,0,0.02);margin-bottom:12px">
+            <h4>${capitalize(section)}</h4>
+        `;
+        
+        suggestions[idx].assigned.forEach(recipe => {
+          html += `
+            <div style="padding:8px;border-bottom:1px solid rgba(0,0,0,0.05);margin-bottom:8px">
+              <strong>${escapeHtml(recipe.label)}</strong>
+              <div><small class="muted">${Math.round(recipe.nutrients.ENERC_KCAL)} kcal • ${Math.round(recipe.nutrients.PROCNT)}g protein • ${Math.round(recipe.nutrients.CHOCDF)}g carbs • ${Math.round(recipe.nutrients.FAT)}g fat</small></div>
+              ${recipe.url ? `<a href="${recipe.url}" target="_blank" style="font-size:12px;color:var(--accent)">View Recipe →</a>` : ''}
+            </div>
+          `;
+        });
+        
+        html += '</div>';
+      }
+    });
+    
+    resultsDiv.innerHTML = html;
+    
+  } catch (e) {
+    resultsDiv.innerHTML = `<div class="error-text">⚠️ Error: ${e.message}. Try adjusting your preferences.</div>`;
+  }
+});
+
+document.getElementById('analyzeRecipeBtn')?.addEventListener('click', async () => {
+  const title = document.getElementById('recipeAnalysisTitle').value.trim();
+  const ingredientsText = document.getElementById('recipeAnalysisIngredients').value.trim();
+  
+  if (!title || !ingredientsText) {
+    showToast('Please provide recipe title and ingredients');
+    return;
+  }
+  
+  const ingredients = ingredientsText.split('\n').filter(line => line.trim());
+  
+  if (ingredients.length === 0) {
+    showToast('Please add at least one ingredient');
+    return;
+  }
+  
+  const resultsDiv = document.getElementById('recipeAnalysisResult');
+  resultsDiv.innerHTML = '<div class="ai-suggestion">🧪 Analyzing recipe nutrition...</div>';
+  
+  try {
+    const analysis = await analyzeRecipeNutrition(title, ingredients);
+    
+    let html = `
+      <div class="card" style="background:rgba(0,0,0,0.02)">
+        <h3>📊 Nutrition Analysis for "${escapeHtml(title)}"</h3>
+        <p class="muted">Total recipe weight: ${analysis.totalWeight}g</p>
+        
+        <h4>Macronutrients</h4>
+        <div class="dashboard-grid">
+          <div class="stat-card">
+            <div class="stat-label">Calories</div>
+            <div class="stat-value">${analysis.calories}</div>
+            <small class="muted">kcal</small>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Protein</div>
+            <div class="stat-value">${analysis.protein}</div>
+            <small class="muted">g</small>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Carbs</div>
+            <div class="stat-value">${analysis.carbs}</div>
+            <small class="muted">g</small>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Fat</div>
+            <div class="stat-value">${analysis.fat}</div>
+            <small class="muted">g</small>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Fiber</div>
+            <div class="stat-value">${analysis.fiber}</div>
+            <small class="muted">g</small>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Sugar</div>
+            <div class="stat-value">${analysis.sugar}</div>
+            <small class="muted">g</small>
+          </div>
+        </div>
+        
+        <h4 style="margin-top:16px">Vitamins</h4>
+        <div class="micro-grid">
+          ${analysis.vitamins.vitamin_a > 0 ? `<div class="micro-item">Vitamin A: <strong>${analysis.vitamins.vitamin_a}µg</strong></div>` : ''}
+          ${analysis.vitamins.vitamin_c > 0 ? `<div class="micro-item">Vitamin C: <strong>${analysis.vitamins.vitamin_c}mg</strong></div>` : ''}
+          ${analysis.vitamins.vitamin_d > 0 ? `<div class="micro-item">Vitamin D: <strong>${analysis.vitamins.vitamin_d}µg</strong></div>` : ''}
+          ${analysis.vitamins.vitamin_e > 0 ? `<div class="micro-item">Vitamin E: <strong>${analysis.vitamins.vitamin_e}mg</strong></div>` : ''}
+          ${analysis.vitamins.vitamin_k > 0 ? `<div class="micro-item">Vitamin K: <strong>${analysis.vitamins.vitamin_k}µg</strong></div>` : ''}
+          ${analysis.vitamins.vitamin_b6 > 0 ? `<div class="micro-item">Vitamin B6: <strong>${analysis.vitamins.vitamin_b6}mg</strong></div>` : ''}
+          ${analysis.vitamins.vitamin_b12 > 0 ? `<div class="micro-item">Vitamin B12: <strong>${analysis.vitamins.vitamin_b12}µg</strong></div>` : ''}
+          ${analysis.vitamins.folate > 0 ? `<div class="micro-item">Folate: <strong>${analysis.vitamins.folate}µg</strong></div>` : ''}
+        </div>
+        
+        <h4 style="margin-top:16px">Minerals</h4>
+        <div class="micro-grid">
+          ${analysis.minerals.calcium > 0 ? `<div class="micro-item">Calcium: <strong>${analysis.minerals.calcium}mg</strong></div>` : ''}
+          ${analysis.minerals.iron > 0 ? `<div class="micro-item">Iron: <strong>${analysis.minerals.iron}mg</strong></div>` : ''}
+          ${analysis.minerals.magnesium > 0 ? `<div class="micro-item">Magnesium: <strong>${analysis.minerals.magnesium}mg</strong></div>` : ''}
+          ${analysis.minerals.phosphorus > 0 ? `<div class="micro-item">Phosphorus: <strong>${analysis.minerals.phosphorus}mg</strong></div>` : ''}
+          ${analysis.minerals.potassium > 0 ? `<div class="micro-item">Potassium: <strong>${analysis.minerals.potassium}mg</strong></div>` : ''}
+          ${analysis.minerals.zinc > 0 ? `<div class="micro-item">Zinc: <strong>${analysis.minerals.zinc}mg</strong></div>` : ''}
+          ${analysis.sodium > 0 ? `<div class="micro-item">Sodium: <strong>${analysis.sodium}mg</strong></div>` : ''}
+        </div>
+      </div>
+    `;
+    
+    resultsDiv.innerHTML = html;
+    
+  } catch (e) {
+    resultsDiv.innerHTML = `<div class="error-text">⚠️ Error analyzing recipe: ${e.message}<br><small>Make sure ingredients are in a standard format (e.g., "200g chicken breast", "1 cup rice")</small></div>`;
+  }
+});
+
+// Health Labels Selection
+document.querySelectorAll('.health-label').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const value = btn.dataset.value;
+    if (selectedHealthLabels.includes(value)) {
+      selectedHealthLabels = selectedHealthLabels.filter(v => v !== value);
+      btn.style.background = '';
+      btn.style.color = '';
+    } else {
+      selectedHealthLabels.push(value);
+      btn.style.background = 'var(--accent)';
+      btn.style.color = 'white';
+    }
+  });
+});
+
+// Tab Switching
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+    
+    // Load content for specific tabs
+    if (btn.dataset.tab === 'history') renderHistoryView();
+    if (btn.dataset.tab === 'dashboard') renderDashboard();
+    if (btn.dataset.tab === 'fasting') renderFastingTab();
+    if (btn.dataset.tab === 'water') renderWaterTab();
+    if (btn.dataset.tab === 'metrics') renderMetricsTab();
+    if (btn.dataset.tab === 'planning') renderMealPlanningTab();
+    if (btn.dataset.tab === 'shopping') renderShoppingList();
+  });
+});
+
+// Search Tabs
+searchTabs.forEach(tab => {
+  tab.addEventListener('click', () => {
+    searchTabs.forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    activeSearchTab = tab.dataset.type;
+    searchInput.value = '';
+    if (activeSearchTab === 'recent') showRecentFoods();
+    else if (activeSearchTab === 'favorites') showFavorites();
+    else if (activeSearchTab === 'recipes') showRecipesInSearch();
+    else suggestionsEl.style.display = 'none';
+  });
+});
+
+async function showRecentFoods() {
+  const recent = await getAllRecent();
+  if (recent.length === 0) {
+    renderSuggestions([{manual: true, product_name: 'No recent foods yet'}]);
+    return;
+  }
+  const items = recent.map(r => ({...r.product, isRecent: true}));
+  renderSuggestions(items);
+}
+
+async function showFavorites() {
+  const favs = await getAllFavorites();
+  if (favs.length === 0) {
+    renderSuggestions([{manual: true, product_name: 'No favorites yet. Star foods to save them!'}]);
+    return;
+  }
+  const items = favs.map(f => ({...f.product, isFavorite: true, favoriteId: f.id}));
+  renderSuggestions(items);
+}
+
+async function showRecipesInSearch() {
+  const recipes = await getAllRecipes();
+  if (recipes.length === 0) {
+    renderSuggestions([{manual: true, product_name: 'No recipes yet. Create one to get started!'}]);
+    return;
+  }
+  const items = recipes.map(r => ({product_name: r.name, code: null, isRecipe: true, recipeData: r}));
+  renderSuggestions(items);
+}
+
+// Meal Selection
+function setActiveMeal(meal) {
+  activeMealFilter = meal;
+  document.querySelectorAll('.mealBtn').forEach(b => {
+    b.classList.remove('meal-active');
+    if (b.dataset.meal === meal) b.classList.add('meal-active');
+  });
+  const nice = meal === 'all' ? 'All meals' : `${capitalize(meal)}`;
+  mealSummary.textContent = `Showing: ${formatDate(currentDate)} • ${nice}`;
+  renderLogEntries();
+}
+
+setActiveMeal('all');
+
+document.querySelectorAll('.mealBtn').forEach(b => {
+  b.addEventListener('click', () => {
+    selectedMeal = b.dataset.meal === 'all' ? 'all' : b.dataset.meal;
+    setActiveMeal(b.dataset.meal);
+  });
+});
+
+// Date Picker
+function setDatePicker(date) {
+  currentDate = date;
+  datePicker.valueAsDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+}
+
+setDatePicker(new Date());
+
+datePicker.addEventListener('change', () => {
+  currentDate = datePicker.valueAsDate || new Date();
+  renderLogEntries();
+  setActiveMeal(activeMealFilter);
+});
+
+prevDay.addEventListener('click', () => {
+  currentDate.setDate(currentDate.getDate() - 1);
+  setDatePicker(currentDate);
+  renderLogEntries();
+  setActiveMeal(activeMealFilter);
+});
+
+nextDay.addEventListener('click', () => {
+  currentDate.setDate(currentDate.getDate() + 1);
+  setDatePicker(currentDate);
+  renderLogEntries();
+  setActiveMeal(activeMealFilter);
+});
+
+todayBtn.addEventListener('click', () => {
+  currentDate = new Date();
+  setDatePicker(currentDate);
+  renderLogEntries();
+  setActiveMeal(activeMealFilter);
+});
+
+// Goals Modal
+goalsBtn.addEventListener('click', async () => {
+  userGoals = await getGoals();
+  document.getElementById('goalCalories').value = userGoals.calories || 2000;
+  document.getElementById('goalProtein').value = userGoals.protein || 150;
+  document.getElementById('goalCarbs').value = userGoals.carbs || 200;
+  document.getElementById('goalFat').value = userGoals.fat || 65;
+  goalsModal.style.display = 'flex';
+});
+
+goalsCancel.addEventListener('click', () => {
+  goalsModal.style.display = 'none';
+});
+
+goalsSave.addEventListener('click', async () => {
+  userGoals = {
+    calories: parseFloat(document.getElementById('goalCalories').value) || 2000,
+    protein: parseFloat(document.getElementById('goalProtein').value) || 150,
+    carbs: parseFloat(document.getElementById('goalCarbs').value) || 200,
+    fat: parseFloat(document.getElementById('goalFat').value) || 65
+  };
+  await saveGoals(userGoals);
+  showToast('Goals saved ✓');
+  goalsModal.style.display = 'none';
+  renderDashboard();
+});
+
+// Recipes Modal
+recipesBtn.addEventListener('click', async () => {
+  await renderRecipeList();
+  recipeModal.style.display = 'flex';
+});
+
+recipeClose.addEventListener('click', () => {
+  recipeModal.style.display = 'none';
+});
+
+createRecipeBtn.addEventListener('click', () => {
+  recipeName.value = '';
+  recipeServings.value = '1';
+  currentRecipeIngredients = [];
+  renderRecipeIngredients();
+  createRecipeModal.style.display = 'flex';
+  recipeError.style.display = 'none';
+});
+
+recipeCreateCancel.addEventListener('click', () => {
+  createRecipeModal.style.display = 'none';
+});
+
+recipeCreateSave.addEventListener('click', async () => {
+  const name = recipeName.value.trim();
+  const servings = parseFloat(recipeServings.value) || 1;
+  if (!name) {
+    recipeError.textContent = 'Please provide a recipe name';
+    recipeError.style.display = 'block';
+    return;
+  }
+  if (currentRecipeIngredients.length === 0) {
+    recipeError.textContent = 'Please add at least one ingredient';
+    recipeError.style.display = 'block';
+    return;
+  }
+  const recipe = {id: generateUUID(), name: name, servings: servings, ingredients: currentRecipeIngredients, created: Date.now()};
+  await saveRecipe(recipe);
+  showToast('Recipe saved ✓');
+  createRecipeModal.style.display = 'none';
+  renderRecipeList();
+});
+
+function renderRecipeIngredients() {
+  if (currentRecipeIngredients.length === 0) {
+    recipeIngredients.innerHTML = `<label style="font-weight:bold;margin-bottom:8px;display:block">Ingredients:</label> <small class="muted">Select a food from search, then click "Add to Recipe" button</small>`;
+    return;
+  }
+  let html = '<label style="font-weight:bold;margin-bottom:8px;display:block">Ingredients:</label>';
+  currentRecipeIngredients.forEach((ing, idx) => {
+    html += `<div class="ingredient-row"> <span>${escapeHtml(ing.name)} (${ing.qty}${ing.unit})</span> <button class="btn-secondary btn-small remove-ingredient" data-idx="${idx}">Remove</button> </div>`;
+  });
+  recipeIngredients.innerHTML = html;
+  document.querySelectorAll('.remove-ingredient').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const idx = parseInt(btn.dataset.idx);
+      currentRecipeIngredients.splice(idx, 1);
+      renderRecipeIngredients();
+    });
+  });
+}
+
+async function renderRecipeList() {
+  const recipes = await getAllRecipes();
+  if (recipes.length === 0) {
+    recipeList.innerHTML = '<p class="muted">No recipes yet. Create one to get started!</p>';
+    return;
+  }
+  let html = '';
+  recipes.forEach(r => {
+    html += `<div class="card" style="margin-bottom:8px"> <div style="display:flex;justify-content:space-between;align-items:center"> <div> <strong>${escapeHtml(r.name)}</strong> <div><small class="muted">${r.ingredients.length} ingredients • ${r.servings} serving(s)</small></div> </div> <button class="btn-secondary btn-small delete-recipe" data-id="${r.id}">Delete</button> </div> </div>`;
+  });
+  recipeList.innerHTML = html;
+  document.querySelectorAll('.delete-recipe').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      if (confirm('Delete this recipe?')) {
+        await deleteRecipe(btn.dataset.id);
+        renderRecipeList();
+        showToast('Recipe deleted');
+      }
+    });
+  });
+}
+
+// Manual Add Modal
+manualAddBtn.addEventListener('click', () => {
+  manualName.value = '';
+  manualBarcode.value = '';
+  manualQty.value = '100';
+  manualCalories.value = '';
+  manualProtein.value = '';
+  manualCarbs.value = '';
+  manualFat.value = '';
+  manualError.style.display = 'none';
+  manualModal.style.display = 'flex';
+});
+
+manualCancel.addEventListener('click', () => {
+  manualModal.style.display = 'none';
+});
+
+manualSave.addEventListener('click', async () => {
+  const name = manualName.value.trim();
+  const barcode = manualBarcode.value.trim();
+  const qty = parseFloat(manualQty.value) || 100;
+  const calories = parseFloat(manualCalories.value) || 0;
+  const protein = parseFloat(manualProtein.value) || 0;
+  const carbs = parseFloat(manualCarbs.value) || 0;
+  const fat = parseFloat(manualFat.value) || 0;
+  if (!name) {
+    manualError.textContent = 'Please provide a product name';
+    manualError.style.display = 'block';
+    return;
+  }
+  const product = {product_name: name, code: barcode || generateUUID(), nutriments: {'energy-kcal_100g': calories, 'proteins_100g': protein, 'carbohydrates_100g': carbs, 'fat_100g': fat}, quantity: `${qty}g`, isManual: true};
+  selectedProduct = product;
+  await saveRecent({id: product.code, product: product, timestamp: Date.now()});
+  renderSelectedProduct();
+  manualModal.style.display = 'none';
+  showToast('Manual product added ✓');
+});
+
+// Supplement Modal
+supplementBtn.addEventListener('click', () => {
+  suppName.value = '';
+  document.getElementById('suppVitA').value = '';
+  document.getElementById('suppVitC').value = '';
+  document.getElementById('suppVitD').value = '';
+  document.getElementById('suppVitE').value = '';
+  document.getElementById('suppVitK').value = '';
+  document.getElementById('suppVitB12').value = '';
+  document.getElementById('suppCalcium').value = '';
+  document.getElementById('suppIron').value = '';
+  document.getElementById('suppMagnesium').value = '';
+  document.getElementById('suppZinc').value = '';
+  document.getElementById('suppOmega3').value = '';
+  document.getElementById('suppFiber').value = '';
+  document.getElementById('suppMeal').value = selectedMeal === 'all' ? 'breakfast' : selectedMeal;
+  suppError.style.display = 'none';
+  supplementModal.style.display = 'flex';
+});
+
+suppCancel.addEventListener('click', () => {
+  supplementModal.style.display = 'none';
+});
+
+suppSave.addEventListener('click', async () => {
+  const name = suppName.value.trim();
+  if (!name) {
+    suppError.textContent = 'Please provide a supplement name';
+    suppError.style.display = 'block';
+    return;
+  }
+  const nutrients = {
+    energy_kcal: 0, protein: 0, carbs: 0, fat: 0,
+    fiber: parseFloat(document.getElementById('suppFiber').value) || 0,
+    vitamin_a: parseFloat(document.getElementById('suppVitA').value) || 0,
+    vitamin_c: parseFloat(document.getElementById('suppVitC').value) || 0,
+    vitamin_d: parseFloat(document.getElementById('suppVitD').value) || 0,
+    vitamin_e: parseFloat(document.getElementById('suppVitE').value) || 0,
+    vitamin_k: parseFloat(document.getElementById('suppVitK').value) || 0,
+    vitamin_b12: parseFloat(document.getElementById('suppVitB12').value) || 0,
+    calcium: parseFloat(document.getElementById('suppCalcium').value) || 0,
+    iron: parseFloat(document.getElementById('suppIron').value) || 0,
+    magnesium: parseFloat(document.getElementById('suppMagnesium').value) || 0,
+    zinc: parseFloat(document.getElementById('suppZinc').value) || 0,
+    omega3: parseFloat(document.getElementById('suppOmega3').value) || 0
+  };
+  const entry = {
+    id: generateUUID(),
+    productName: name,
+    code: null,
+    meal: document.getElementById('suppMeal').value,
+    qty: 1,
+    nutrients: nutrients,
+    isSupplement: true,
+    timestamp: Date.now(),
+    date: new Date(currentDate).toDateString()
+  };
+  await saveEntry(entry);
+  showToast('Supplement logged ✓');
+  supplementModal.style.display = 'none';
+  renderLogEntries();
+  renderDashboard();
+});
+
+// Photo Modal
+photoBtn.addEventListener('click', () => {
+  photoInput.click();
+});
+
+photoInput.addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  
+  const reader = new FileReader();
+  reader.onload = (event) => {
+    currentPhotoData = event.target.result;
+    photoPreview.src = currentPhotoData;
+    photoModal.style.display = 'flex';
+  };
+  reader.readAsDataURL(file);
+});
+
+photoModalClose.addEventListener('click', () => {
+  photoModal.style.display = 'none';
+  currentPhotoData = null;
+  photoNotes.value = '';
+});
+
+// Mood Selection in Edit Modal
+document.querySelectorAll('.mood-emoji').forEach(emoji => {
+  emoji.addEventListener('click', () => {
+    document.querySelectorAll('.mood-emoji').forEach(e => e.classList.remove('selected'));
+    emoji.classList.add('selected');
+    currentMood = emoji.dataset.mood;
+  });
+});
+
+// Edit Modal Functions
+function openEditModal(entry) {
+  currentEditingEntry = entry;
+  editProductName.textContent = entry.productName;
+  editQty.value = entry.qty;
+  editMeal.value = entry.meal;
+  editHunger.value = entry.hunger || '';
+  editNotes.value = entry.notes || '';
+  
+  // Set mood if available
+  document.querySelectorAll('.mood-emoji').forEach(e => e.classList.remove('selected'));
+  if (entry.mood) {
+    const moodEmoji = document.querySelector(`.mood-emoji[data-mood="${entry.mood}"]`);
+    if (moodEmoji) {
+      moodEmoji.classList.add('selected');
+      currentMood = entry.mood;
+    }
+  }
+  
+  const n = entry.nutrients;
+  let nutrientHtml = '<div class="nutri-grid">';
+  if (!entry.isSupplement) {
+    nutrientHtml += `<div class="nutri"><strong>${n.energy_kcal || 0}</strong> kcal</div><div class="nutri"><strong>${n.protein || 0}g</strong> protein</div><div class="nutri"><strong>${n.carbs || 0}g</strong> carbs</div><div class="nutri"><strong>${n.fat || 0}g</strong> fat</div>`;
+  }
+  if (n.vitamin_a || n.vitamin_c || n.calcium) {
+    nutrientHtml += `${n.vitamin_a ? `<div class="nutri">Vit A: <strong>${n.vitamin_a}µg</strong></div>` : ''}${n.vitamin_c ? `<div class="nutri">Vit C: <strong>${n.vitamin_c}mg</strong></div>` : ''}${n.vitamin_d ? `<div class="nutri">Vit D: <strong>${n.vitamin_d}µg</strong></div>` : ''}${n.calcium ? `<div class="nutri">Calcium: <strong>${n.calcium}mg</strong></div>` : ''}${n.iron ? `<div class="nutri">Iron: <strong>${n.iron}mg</strong></div>` : ''}${n.magnesium ? `<div class="nutri">Magnesium: <strong>${n.magnesium}mg</strong></div>` : ''}${n.zinc ? `<div class="nutri">Zinc: <strong>${n.zinc}mg</strong></div>` : ''}`;
+  }
+  nutrientHtml += '</div><small class="muted" style="margin-top:8px;display:block">Nutrients will recalculate when you change quantity</small>';
+  editNutrients.innerHTML = nutrientHtml;
+  editModal.style.display = 'flex';
+}
+
+editCancel.addEventListener('click', () => {
+  editModal.style.display = 'none';
+  currentEditingEntry = null;
+  currentMood = null;
+});
+
+editQty.addEventListener('input', () => {
+  if (!currentEditingEntry || !currentEditingEntry.nutriments) return;
+  const newQty = parseFloat(editQty.value) || currentEditingEntry.qty;
+  const newNutrients = extractNutrients(currentEditingEntry.nutriments, newQty);
+  let nutrientHtml = '<div class="nutri-grid">';
+  if (!currentEditingEntry.isSupplement) {
+    nutrientHtml += `<div class="nutri"><strong>${newNutrients.energy_kcal || 0}</strong> kcal</div><div class="nutri"><strong>${newNutrients.protein || 0}g</strong> protein</div><div class="nutri"><strong>${newNutrients.carbs || 0}g</strong> carbs</div><div class="nutri"><strong>${newNutrients.fat || 0}g</strong> fat</div>`;
+  }
+  if (newNutrients.vitamin_a || newNutrients.vitamin_c || newNutrients.calcium) {
+    nutrientHtml += `${newNutrients.vitamin_a ? `<div class="nutri">Vit A: <strong>${newNutrients.vitamin_a}µg</strong></div>` : ''}${newNutrients.vitamin_c ? `<div class="nutri">Vit C: <strong>${newNutrients.vitamin_c}mg</strong></div>` : ''}${newNutrients.vitamin_d ? `<div class="nutri">Vit D: <strong>${newNutrients.vitamin_d}µg</strong></div>` : ''}${newNutrients.calcium ? `<div class="nutri">Calcium: <strong>${newNutrients.calcium}mg</strong></div>` : ''}${newNutrients.iron ? `<div class="nutri">Iron: <strong>${newNutrients.iron}mg</strong></div>` : ''}${newNutrients.magnesium ? `<div class="nutri">Magnesium: <strong>${newNutrients.magnesium}mg</strong></div>` : ''}${newNutrients.zinc ? `<div class="nutri">Zinc: <strong>${newNutrients.zinc}mg</strong></div>` : ''}`;
+  }
+  nutrientHtml += '</div><small class="muted" style="margin-top:8px;display:block">Nutrients updated based on new quantity</small>';
+  editNutrients.innerHTML = nutrientHtml;
+});
+
+editSave.addEventListener('click', async () => {
+  if (!currentEditingEntry) return;
+  const newQty = parseFloat(editQty.value) || currentEditingEntry.qty;
+  const newMeal = editMeal.value;
+  const hunger = parseInt(editHunger.value) || null;
+  const notes = editNotes.value.trim();
+  
+  let newNutrients;
+  if (currentEditingEntry.nutriments) {
+    newNutrients = extractNutrients(currentEditingEntry.nutriments, newQty);
+  } else {
+    newNutrients = {...currentEditingEntry.nutrients};
+  }
+  
+  const updatedEntry = {
+    ...currentEditingEntry,
+    qty: newQty,
+    meal: newMeal,
+    nutrients: newNutrients,
+    mood: currentMood,
+    hunger: hunger,
+    notes: notes
+  };
+  
+  await saveEntry(updatedEntry);
+  showToast('Entry updated ✓');
+  editModal.style.display = 'none';
+  currentEditingEntry = null;
+  currentMood = null;
+  renderLogEntries();
+  renderDashboard();
+});
+
+// Open Food Facts API
+async function fetchProductByBarcode(barcode) {
+  const endpoints = [
+    `https://de.openfoodfacts.org/api/v2/product/${encodeURIComponent(barcode)}`,
+    `https://world.openfoodfacts.org/api/v2/product/${encodeURIComponent(barcode)}`
+  ];
+  for (const url of endpoints) {
+    try {
+      const res = await fetch(url + '.json');
+      if (!res.ok) continue;
+      const data = await res.json();
+      if (data && data.status === 1 && data.product) return {product: data.product, url};
+      if (data && data.product) return {product: data.product, url};
+    } catch (e) {
+      console.warn('OFF fetch failed', url, e);
+    }
+  }
+  return null;
+}
+
+let searchAbortController = null;
+
+async function searchSuggestions(term) {
+  if (!term || term.trim().length < 2) return [];
+  if (searchAbortController) searchAbortController.abort();
+  searchAbortController = new AbortController();
+  const q = encodeURIComponent(term);
+  const urls = [
+    `https://de.openfoodfacts.org/cgi/search.pl?search_terms=${q}&search_simple=1&action=process&json=1&page_size=10`,
+    `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${q}&search_simple=1&action=process&json=1&page_size=10`
+  ];
+  for (const url of urls) {
+    try {
+      const res = await fetch(url, {signal: searchAbortController.signal});
+      if (!res.ok) continue;
+      const data = await res.json();
+      if (data && Array.isArray(data.products) && data.products.length) {
+        return data.products.map(p => ({
+          code: p.code,
+          product_name: p.product_name || p.generic_name || p.brands || 'Unknown',
+          nutriments: p.nutriments || {},
+          product: p
+        }));
+      }
+    } catch (e) {
+      if (e.name === 'AbortError') return [];
+      console.warn('search error', e);
+    }
+  }
+  return [];
+}
+
+// Search Input Handler - Combined Open Food Facts + Edamam
+let suggestionTimer = null;
+let spinnerTimeout = null;
+let searchInProgress = false;
+
+searchInput.addEventListener('input', (e) => {
+  const v = e.target.value.trim();
+  if (!v) {
+    selectedProduct = null;
+    renderSelectedProduct();
+  }
+  if (activeSearchTab !== 'search') return;
+  if (suggestionTimer) clearTimeout(suggestionTimer);
+  if (spinnerTimeout) clearTimeout(spinnerTimeout);
+  
+  suggestionTimer = setTimeout(async () => {
+    if (!v) {
+      suggestionsEl.style.display = 'none';
+      spinner.style.display = 'none';
+      searchInProgress = false;
+      return;
+    }
+    
+    searchInProgress = true;
+    
+    // Barcode search
+    if (/^\d{8,}$/.test(v)) {
+      spinnerTimeout = setTimeout(() => {
+        if (searchInProgress) spinner.style.display = 'flex';
+      }, 200);
+      showLoadingSuggestions(`Looking up barcode ${v}…`);
+      const found = await fetchProductByBarcode(v);
+      searchInProgress = false;
+      if (spinnerTimeout) clearTimeout(spinnerTimeout);
+      spinner.style.display = 'none';
+      if (found) {
+        renderSuggestions([{
+          code: found.product.code,
+          product_name: found.product.product_name || found.product.brands || 'Product',
+          nutriments: found.product.nutriments || {},
+          product: found.product
+        }]);
+        return;
+      } else {
+        renderSuggestions([{code: null, product_name: 'No product found for barcode — you can add manually', manual: true}]);
+        return;
+      }
+    }
+    
+    // Text search - use both APIs in parallel
+    spinnerTimeout = setTimeout(() => {
+      if (searchInProgress) spinner.style.display = 'flex';
+    }, 200);
+    showLoadingSuggestions('Searching multiple databases...');
+    
+    const [offResults, edamamResults] = await Promise.all([
+      searchSuggestions(v),
+      searchEdamamFoodDB(v)
+    ]);
+    
+    // Combine results, prioritizing Open Food Facts
+    const combined = [...offResults, ...edamamResults];
+    
+    searchInProgress = false;
+    if (spinnerTimeout) {
+      clearTimeout(spinnerTimeout);
+      spinnerTimeout = null;
+    }
+    spinner.style.display = 'none';
+    renderSuggestions(combined);
+  }, 150);
+});
+
+// Paste Barcode
+pasteBarcodeBtn.addEventListener('click', async () => {
+  try {
+    const text = await navigator.clipboard.readText();
+    if (text && /^\d{8,}$/.test(text.trim())) {
+      searchInput.value = text.trim();
+      searchInput.dispatchEvent(new Event('input'));
+    } else {
+      showToast('Please copy a valid barcode first');
+    }
+  } catch (e) {
+    showToast('Could not access clipboard');
+  }
+});
+
+function showLoadingSuggestions(text) {
+  suggestionsEl.style.display = 'block';
+  suggestionsEl.innerHTML = `<div class="s-item">${text}</div>`;
+}
+
+function renderSuggestions(items) {
+  suggestionsEl.innerHTML = '';
+  if (!items || items.length === 0) {
+    suggestionsEl.style.display = 'none';
+    return;
+  }
+  items.forEach(it => {
+    const div = document.createElement('div');
+    div.className = 's-item';
+    if (it.manual) {
+      div.innerHTML = `<strong>${escapeHtml(it.product_name)}</strong>`;
+      div.addEventListener('click', () => {
+        suggestionsEl.style.display = 'none';
+        if (it.product_name.includes('manually')) {
+          manualModal.style.display = 'flex';
+        }
+      });
+    } else if (it.isRecipe) {
+      div.innerHTML = `<div><strong>${escapeHtml(it.product_name)}</strong><div><small class="muted">Recipe • ${it.recipeData.ingredients.length} ingredients</small></div></div>`;
+      div.addEventListener('click', async () => {
+        suggestionsEl.style.display = 'none';
+        searchInput.value = it.product_name;
+        await onSelectRecipe(it.recipeData);
+      });
+    } else {
+      const source = it.isEdamam ? '<small style="color:var(--purple)">Edamam</small>' : '<small style="color:var(--green)">OFF</small>';
+      div.innerHTML = `<div><strong>${escapeHtml(it.product_name)}</strong><div><small class="muted">${it.code || ''} ${source}</small></div></div><button class="btn-icon star-btn" data-code="${it.code}" title="Add to favorites">⭐</button>`;
+      div.querySelector('.star-btn').addEventListener('click', async (e) => {
+        e.stopPropagation();
+        await toggleFavorite(it);
+        if (activeSearchTab === 'favorites') showFavorites();
+      });
+      div.addEventListener('click', async () => {
+        suggestionsEl.style.display = 'none';
+        searchInput.value = it.product_name;
+        await onSelectProduct(it);
+      });
+    }
+    suggestionsEl.appendChild(div);
+  });
+  suggestionsEl.style.display = 'block';
+}
+
+async function toggleFavorite(item) {
+  const favs = await getAllFavorites();
+  const existing = favs.find(f => f.product.code === item.code);
+  if (existing) {
+    await deleteFavorite(existing.id);
+    showToast('Removed from favorites');
+  } else {
+    await saveFavorite({id: generateUUID(), product: item.product || item, timestamp: Date.now()});
+    showToast('Added to favorites ⭐');
+  }
+}
+
+async function onSelectProduct(item) {
+  if (item.code && (!item.product || !item.product.nutriments)) {
+    const fetched = await fetchProductByBarcode(item.code);
+    if (fetched) item.product = fetched.product;
+  }
+  selectedProduct = item.product || item;
+  await saveRecent({id: selectedProduct.code || generateUUID(), product: selectedProduct, timestamp: Date.now()});
+  renderSelectedProduct();
+}
+
+async function onSelectRecipe(recipe) {
+  let totalNutriments = {'energy-kcal_100g': 0, 'proteins_100g': 0, 'carbohydrates_100g': 0, 'fat_100g': 0};
+  recipe.ingredients.forEach(ing => {
+    const factor = ing.unit === 'g' ? (ing.qty / 100) : 1;
+    Object.keys(totalNutriments).forEach(key => {
+      if (ing.nutriments && ing.nutriments[key]) totalNutriments[key] += ing.nutriments[key] * factor;
+    });
+  });
+  selectedProduct = {product_name: recipe.name, code: null, isRecipe: true, recipeId: recipe.id, servings: recipe.servings, nutriments: totalNutriments};
+  renderSelectedProduct();
+}
+
+function extractNutrients(nutriments, qty) {
+  function get(keys) {
+    for (const k of keys) {
+      if (nutriments[k] !== undefined) return parseFloat(nutriments[k]);
+    }
+    return 0;
+  }
+  let energy = get(['energy-kcal_100g', 'energy-kcal']);
+  if (!energy) {
+    const kj = get(['energy-kj_100g', 'energy-kj', 'energy_100g', 'energy']);
+    energy = kj ? kj / 4.184 : 0;
+  }
+  const factor = qty / 100;
+  return {
+    energy_kcal: Math.round(energy * factor),
+    protein: Math.round(get(['proteins_100g', 'protein_100g', 'proteins', 'protein']) * factor * 10) / 10,
+    carbs: Math.round(get(['carbohydrates_100g', 'carbohydrates']) * factor * 10) / 10,
+    fat: Math.round(get(['fat_100g', 'fat']) * factor * 10) / 10,
+    fiber: Math.round(get(['fiber_100g', 'fiber']) * factor * 10) / 10,
+    vitamin_a: Math.round(get(['vitamin-a_100g', 'vitamin_a_100g']) * factor * 100) / 100,
+    vitamin_c: Math.round(get(['vitamin-c_100g', 'vitamin_c_100g']) * factor * 100) / 100,
+    vitamin_d: Math.round(get(['vitamin-d_100g', 'vitamin_d_100g']) * factor * 100) / 100,
+    calcium: Math.round(get(['calcium_100g']) * factor * 100) / 100,
+    iron: Math.round(get(['iron_100g']) * factor * 100) / 100,
+    magnesium: Math.round(get(['magnesium_100g']) * factor * 100) / 100,
+    zinc: Math.round(get(['zinc_100g']) * factor * 100) / 100
+  };
+}
+
+// Barcode Scanning
+scanBtn.addEventListener('click', async () => {
+  barcodeCard.style.display = 'block';
+  await startBarcodeScanning();
+});
+
+stopScanBtn.addEventListener('click', () => {
+  stopBarcodeScanning();
+  barcodeCard.style.display = 'none';
+});
+
+let barcodeDetectorAvailable = false;
+let usingScannerLib = false;
+
+async function startBarcodeScanning() {
+  barcodeStatus.innerHTML = '<small class="muted">Starting camera...</small>';
+  
+  // First try ZXing library (more reliable)
+  if (!usingScannerLib) {
+    try {
+      usingScannerLib = true;
+      barcodeStatus.innerHTML = '<small class="muted">Loading scanner library...</small>';
+      await loadScript('https://unpkg.com/@zxing/library@0.19.1/umd/index.min.js');
+      await startCameraWithZXing();
+      return;
+    } catch (e) {
+      console.error('Failed to load ZXing library:', e);
+      barcodeStatus.innerHTML = '<small class="error-text">Scanner library failed. Trying native detector...</small>';
+    }
+  }
+  
+  // Fallback to native BarcodeDetector if available
+  try {
+    if ('BarcodeDetector' in window) {
+      const formats = await BarcodeDetector.getSupportedFormats();
+      if (formats && formats.length > 0) {
+        barcodeDetectorAvailable = true;
+        await startCameraWithNativeDetector();
+        return;
+      }
+    }
+  } catch (e) {
+    console.error('Native detector check failed:', e);
+  }
+  
+  // If both fail
+  barcodeStatus.innerHTML = '<small class="error-text">Camera scanning not available on this device. Please use "Paste Barcode" instead.</small>';
+}
+
+async function startCameraWithZXing() {
+  try {
+    cameraStream = await navigator.mediaDevices.getUserMedia({
+      video: {facingMode: 'environment'}
+    });
+    
+    barcodeVideo.srcObject = cameraStream;
+    scanningActive = true;
+    barcodeStatus.innerHTML = '<small class="muted">Camera ready. Point at a barcode...</small>';
+    
+    const ZXing = window.ZXingBrowser || window.ZXing;
+    if (!ZXing || !ZXing.BrowserBarcodeReader) {
+      throw new Error('ZXing library not properly loaded');
+    }
+    
+    const codeReader = new ZXing.BrowserBarcodeReader();
+    
+    codeReader.decodeFromVideoDevice(null, barcodeVideo, async (result, err) => {
+      if (!scanningActive) {
+        codeReader.reset();
+        return;
+      }
+      
+      if (result) {
+        const code = result.getText();
+        barcodeStatus.innerHTML = `<small style="color:var(--green)">✓ Found: ${code}</small>`;
+        codeReader.reset();
+        await handleScannedBarcode(code);
+      }
+      
+      if (err && !(err instanceof ZXing.NotFoundException)) {
+        console.warn('ZXing decode error:', err);
+      }
+    });
+    
+  } catch (error) {
+    console.error('Camera error:', error);
+    throw new Error('Camera access denied or unavailable');
+  }
+}
+
+async function startCameraWithNativeDetector() {
+  try {
+    cameraStream = await navigator.mediaDevices.getUserMedia({
+      video: {facingMode: 'environment'}
+    });
+    
+    barcodeVideo.srcObject = cameraStream;
+    scanningActive = true;
+    barcodeStatus.innerHTML = '<small class="muted">Camera ready. Point at a barcode...</small>';
+    
+    const barcodeDetector = new BarcodeDetector({
+      formats: ['ean_13', 'ean_8', 'upc_a', 'upc_e', 'code_128', 'code_39']
+    });
+    
+    const detectLoop = async () => {
+      if (!scanningActive) return;
+      
+      try {
+        const barcodes = await barcodeDetector.detect(barcodeVideo);
+        if (barcodes && barcodes.length > 0) {
+          const code = barcodes[0].rawValue;
+          barcodeStatus.innerHTML = `<small style="color:var(--green)">✓ Found: ${code}</small>`;
+          await handleScannedBarcode(code);
+          return;
+        }
+      } catch (e) {
+        console.warn('Detection error:', e);
+      }
+      
+      requestAnimationFrame(detectLoop);
+    };
+    
+    detectLoop();
+    
+  } catch (error) {
+    console.error('Camera error:', error);
+    throw new Error('Camera access denied or unavailable');
+  }
+}
+
+function loadScript(src) {
+  return new Promise((resolve, reject) => {
+    const script = document.createElement('script');
+    script.src = src;
+    script.onload = () => resolve();
+    script.onerror = (e) => reject(e);
+    document.head.appendChild(script);
+  });
+}
+
+async function handleScannedBarcode(code) {
+  scanningActive = false;
+  stopBarcodeScanning();
+  barcodeCard.style.display = 'none';
+  
+  searchInput.value = code;
+  showToast(`Barcode scanned: ${code}`);
+  
+  spinner.style.display = 'flex';
+  const found = await fetchProductByBarcode(code);
+  spinner.style.display = 'none';
+  
+  if (found) {
+    await onSelectProduct({
+      code: found.product.code,
+      product_name: found.product.product_name || found.product.brands || 'Product',
+      nutriments: found.product.nutriments || {},
+      product: found.product
+    });
+  } else {
+    showToast('Product not found. Add manually?');
+    manualBarcode.value = code;
+    manualModal.style.display = 'flex';
+  }
+}
+
+function stopBarcodeScanning() {
+  scanningActive = false;
+  
+  if (cameraStream) {
+    cameraStream.getTracks().forEach(track => track.stop());
+    cameraStream = null;
+  }
+  
+  if (barcodeVideo.srcObject) {
+    barcodeVideo.srcObject = null;
+  }
+  
+  barcodeStatus.innerHTML = '<small class="muted">Initializing camera...</small>';
+}
+
+// Selected Product Rendering
+function renderSelectedProduct() {
+  if (!selectedProduct) {
+    selectedProductEl.innerHTML = '<small class="muted">No product selected</small>';
+    return;
+  }
+  const name = selectedProduct.product_name || 'Unknown Product';
+  const defaultQty = selectedProduct.isRecipe ? selectedProduct.servings * 100 : 100;
+  const nutrients = extractNutrients(selectedProduct.nutriments, defaultQty);
+  
+  let html = `
+    <div>
+      <strong>${escapeHtml(name)}</strong>
+      ${selectedProduct.code ? `<div><small class="muted">Code: ${selectedProduct.code}</small></div>` : ''}
+      ${selectedProduct.isRecipe ? '<div><small class="muted">📝 Recipe</small></div>' : ''}
+      ${selectedProduct.isEdamam ? '<div><small style="color:var(--purple)">🤖 Edamam Database</small></div>' : ''}
+    </div>
+    <div class="nutri-grid" style="margin-top:8px">
+      <div class="nutri"><strong>${nutrients.energy_kcal}</strong> kcal</div>
+      <div class="nutri"><strong>${nutrients.protein}g</strong> protein</div>
+      <div class="nutri"><strong>${nutrients.carbs}g</strong> carbs</div>
+      <div class="nutri"><strong>${nutrients.fat}g</strong> fat</div>
+    </div>
+    <div style="margin-top:12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <input type="number" id="productQty" class="input" style="width:100px" value="${defaultQty}" min="1" placeholder="Qty (g)" />
+      <select id="productMeal" class="input" style="width:140px">
+        <option value="breakfast" ${selectedMeal === 'breakfast' ? 'selected' : ''}>Breakfast</option>
+        <option value="lunch" ${selectedMeal === 'lunch' ? 'selected' : ''}>Lunch</option>
+        <option value="dinner" ${selectedMeal === 'dinner' ? 'selected' : ''}>Dinner</option>
+        <option value="snack" ${selectedMeal === 'snack' ? 'selected' : ''}>Snack</option>
+      </select>
+      <button id="logBtn" class="btn">Log Entry</button>
+      <button id="addToRecipeBtn" class="btn-secondary">Add to Recipe</button>
+    </div>
+  `;
+  
+  selectedProductEl.innerHTML = html;
+  
+  document.getElementById('logBtn').addEventListener('click', async () => {
+    const qty = parseFloat(document.getElementById('productQty').value) || 100;
+    const meal = document.getElementById('productMeal').value;
+    const nutrients = extractNutrients(selectedProduct.nutriments, qty);
+    
+    const entry = {
+      id: generateUUID(),
+      productName: name,
+      code: selectedProduct.code,
+      meal: meal,
+      qty: qty,
+      nutrients: nutrients,
+      nutriments: selectedProduct.nutriments,
+      photo: currentPhotoData,
+      notes: currentPhotoData ? photoNotes.value : '',
+      timestamp: Date.now(),
+      date: new Date(currentDate).toDateString()
+    };
+    
+    await saveEntry(entry);
+    showToast('Entry logged ✓');
+    
+    // Clear selections
+    selectedProduct = null;
+    searchInput.value = '';
+    currentPhotoData = null;
+    if (photoModal.style.display === 'flex') {
+      photoModal.style.display = 'none';
+      photoNotes.value = '';
+    }
+    
+    renderSelectedProduct();
+    renderLogEntries();
+    renderDashboard();
+  });
+  
+  document.getElementById('addToRecipeBtn').addEventListener('click', () => {
+    const qty = parseFloat(document.getElementById('productQty').value) || 100;
+    currentRecipeIngredients.push({
+      name: name,
+      code: selectedProduct.code,
+      qty: qty,
+      unit: 'g',
+      nutriments: selectedProduct.nutriments
+    });
+    renderRecipeIngredients();
+    createRecipeModal.style.display = 'flex';
+    showToast('Added to recipe ingredients');
+  });
+}
+
+// Voice Input
+voiceBtn.addEventListener('click', () => {
+  if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+    startVoiceInput();
+  } else {
+    showToast('Voice recognition not supported in this browser');
+  }
+});
+
+voiceModalClose.addEventListener('click', () => {
+  if (voiceRecognition) {
+    voiceRecognition.stop();
+  }
+  voiceModal.style.display = 'none';
+});
+
+function startVoiceInput() {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  voiceRecognition = new SpeechRecognition();
+  voiceRecognition.lang = 'en-US';
+  voiceRecognition.continuous = false;
+  voiceRecognition.interimResults = true;
+  
+  voiceModal.style.display = 'flex';
+  voiceTranscript.textContent = 'Listening...';
+  voiceBtn.classList.add('listening');
+  
+  voiceRecognition.onresult = (event) => {
+    const transcript = Array.from(event.results)
+      .map(result => result[0].transcript)
+      .join('');
+    voiceTranscript.textContent = transcript;
+  };
+  
+  voiceRecognition.onend = () => {
+    voiceBtn.classList.remove('listening');
+    const finalTranscript = voiceTranscript.textContent;
+    
+    if (finalTranscript && finalTranscript !== 'Listening...') {
+      // Parse voice input (e.g., "I ate 200 grams of chicken breast for lunch")
+      parseVoiceInput(finalTranscript);
+      voiceModal.style.display = 'none';
+    }
+  };
+  
+  voiceRecognition.onerror = (event) => {
+    console.error('Voice recognition error:', event.error);
+    voiceBtn.classList.remove('listening');
+    voiceModal.style.display = 'none';
+    showToast('Voice recognition error. Please try again.');
+  };
+  
+  voiceRecognition.start();
+}
+
+function parseVoiceInput(text) {
+  // Simple parsing logic - can be enhanced
+  const lowerText = text.toLowerCase();
+  
+  // Extract food name (everything before "for")
+  let foodName = '';
+  let meal = 'snack';
+  
+  if (lowerText.includes('for breakfast')) {
+    meal = 'breakfast';
+    foodName = lowerText.split('for breakfast')[0].trim();
+  } else if (lowerText.includes('for lunch')) {
+    meal = 'lunch';
+    foodName = lowerText.split('for lunch')[0].trim();
+  } else if (lowerText.includes('for dinner')) {
+    meal = 'dinner';
+    foodName = lowerText.split('for dinner')[0].trim();
+  } else {
+    foodName = lowerText;
+  }
+  
+  // Remove common phrases
+  foodName = foodName.replace(/i ate|i had|i consumed/gi, '').trim();
+  
+  // Extract quantity if present
+  const qtyMatch = foodName.match(/(\d+)\s*(grams?|g|oz|ounces?)/i);
+  if (qtyMatch) {
+    foodName = foodName.replace(qtyMatch[0], '').trim();
+  }
+  
+  // Search for the food
+  searchInput.value = foodName;
+  selectedMeal = meal;
+  searchInput.dispatchEvent(new Event('input'));
+  
+  showToast(`Searching for: ${foodName}`);
+}
+
+// Notification Functions
+notificationBtn.addEventListener('click', () => {
+  notificationModal.style.display = 'flex';
+});
+
+notifModalCancel.addEventListener('click', () => {
+  notificationModal.style.display = 'none';
+});
+
+notifModalAllow.addEventListener('click', async () => {
+  await requestNotificationPermission();
+  notificationModal.style.display = 'none';
+});
+
+requestNotificationBtn?.addEventListener('click', async () => {
+  await requestNotificationPermission();
+});
+
+async function requestNotificationPermission() {
+  if (!('Notification' in window)) {
+    showToast('Notifications not supported in this browser');
+    return;
+  }
+  
+  try {
+    const permission = await Notification.requestPermission();
+    if (permission === 'granted') {
+      showToast('Notifications enabled ✓');
+      const settings = await getSettings();
+      settings.notifyMeals = true;
+      settings.notifyWater = true;
+      settings.notifyFasting = true;
+      await saveSettings(settings);
+      
+      // Show test notification
+      new Notification('FoodLog Pro', {
+        body: 'Notifications are now enabled! 🎉',
+        icon: '/icon-192.png'
+      });
+    } else {
+      showToast('Notification permission denied');
+    }
+  } catch (e) {
+    console.error('Notification error:', e);
+    showToast('Could not enable notifications');
+  }
+}
+
+function scheduleNotification(title, body, delay) {
+  if (!('Notification' in window) || Notification.permission !== 'granted') return;
+  
+  setTimeout(() => {
+    new Notification(title, {
+      body: body,
+      icon: '/icon-192.png',
+      badge: '/badge-72.png'
+    });
+  }, delay);
+}
+
+// Export/Import Data
+exportBtn.addEventListener('click', () => {
+  exportDataBtn.click();
+});
+
+importBtn.addEventListener('click', () => {
+  importFileInput.click();
+});
+
+exportDataBtn.addEventListener('click', async () => {
+  try {
+    const data = {
+      entries: await getAllEntries(),
+      goals: await getGoals(),
+      favorites: await getAllFavorites(),
+      recipes: await getAllRecipes(),
+      mealPlans: await getAllMealPlans(),
+      water: await getAllWaterIntake(),
+      fasting: await getAllFastingSessions(),
+      metrics: await getAllMetrics(),
+      shopping: await getAllShoppingItems(),
+      settings: await getSettings(),
+      exportDate: new Date().toISOString(),
+      version: '2.0'
+    };
+    
+    const json = JSON.stringify(data, null, 2);
+    const blob = new Blob([json], {type: 'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `foodlog-backup-${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    
+    showToast('Data exported successfully ✓');
+  } catch (e) {
+    console.error('Export error:', e);
+    showToast('Error exporting data');
+  }
+});
+
+importDataBtn.addEventListener('click', () => {
+  importFileInput.click();
+});
+
+importFileInput.addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  
+  try {
+    const text = await file.text();
+    const data = JSON.parse(text);
+    
+    if (!confirm('Import data? This will merge with existing data.')) return;
+    
+    // Import all data
+    if (data.entries) for (const entry of data.entries) await saveEntry(entry);
+    if (data.favorites) for (const fav of data.favorites) await saveFavorite(fav);
+    if (data.recipes) for (const recipe of data.recipes) await saveRecipe(recipe);
+    if (data.mealPlans) for (const plan of data.mealPlans) await saveMealPlan(plan);
+    if (data.water) for (const w of data.water) await saveWaterIntake(w);
+    if (data.fasting) for (const f of data.fasting) await saveFastingSession(f);
+    if (data.metrics) for (const m of data.metrics) await saveMetric(m);
+    if (data.shopping) for (const s of data.shopping) await saveShoppingItem(s);
+    if (data.goals) await saveGoals(data.goals);
+    if (data.settings) await saveSettings(data.settings);
+    
+    showToast('Data imported successfully ✓');
+    
+    // Refresh UI
+    renderLogEntries();
+    renderDashboard();
+    
+  } catch (e) {
+    console.error('Import error:', e);
+    showToast('Error importing data. Check file format.');
+  }
+  
+  e.target.value = '';
+});
+
+clearAllDataBtn?.addEventListener('click', async () => {
+  if (!confirm('⚠️ WARNING: This will delete ALL your data permanently. Are you sure?')) return;
+  if (!confirm('This action cannot be undone. Delete everything?')) return;
+  
+  try {
+    await clearStore(STORE_ENTRIES);
+    await clearStore(STORE_FAVORITES);
+    await clearStore(STORE_RECENT);
+    await clearStore(STORE_RECIPES);
+    await clearStore(STORE_MEAL_PLANS);
+    await clearStore(STORE_WATER);
+    await clearStore(STORE_FASTING);
+    await clearStore(STORE_METRICS);
+    await clearStore(STORE_SHOPPING);
+    
+    showToast('All data cleared');
+    renderLogEntries();
+    renderDashboard();
+  } catch (e) {
+    console.error('Clear data error:', e);
+    showToast('Error clearing data');
+  }
+});
+
+// Water Tracking Functions
+async function renderWaterTab() {
+  const settings = await getSettings();
+  waterGoal = settings.waterGoal || 2000;
+  document.getElementById('waterGoalInput').value = waterGoal;
+  document.getElementById('waterGoalDisplay').textContent = waterGoal;
+  
+  // Get today's water intake
+  const allWater = await getAllWaterIntake();
+  const today = allWater.filter(w => isSameDay(new Date(w.date), new Date()));
+  waterIntakeToday = today.reduce((sum, w) => sum + w.amount, 0);
+  
+  document.getElementById('waterTotal').textContent = waterIntakeToday;
+  
+  const percentage = Math.min((waterIntakeToday / waterGoal) * 100, 100);
+  document.getElementById('waterProgress').style.width = percentage + '%';
+  
+  if (percentage >= 100) {
+    document.getElementById('waterProgress').classList.add('danger');
+  } else if (percentage >= 80) {
+    document.getElementById('waterProgress').classList.add('warning');
+  }
+  
+  renderWaterGlasses();
+  renderWaterHistory();
+}
+
+function renderWaterGlasses() {
+  const glassesDiv = document.getElementById('waterGlasses');
+  const numGlasses = 8; // 8 glasses of 250ml each
+  let html = '';
+  
+  const glassSize = waterGoal / numGlasses;
+  const filledGlasses = Math.floor(waterIntakeToday / glassSize);
+  
+  for (let i = 0; i < numGlasses; i++) {
+    html += `<div class="water-glass ${i < filledGlasses ? 'filled' : ''}" data-glass="${i}"></div>`;
+  }
+  
+  glassesDiv.innerHTML = html;
+  
+  document.querySelectorAll('.water-glass').forEach((glass, idx) => {
+    glass.addEventListener('click', async () => {
+      const amount = waterGoal / numGlasses;
+      await logWater(amount);
+      renderWaterTab();
+    });
+  });
+}
+
+async function logWater(amount) {
+  const entry = {
+    id: generateUUID(),
+    amount: amount,
+    timestamp: Date.now(),
+    date: new Date().toDateString()
+  };
+  
+  await saveWaterIntake(entry);
+  waterIntakeToday += amount;
+  showToast(`+${amount}ml water logged 💧`);
+  
+  // Check if goal reached
+  if (waterIntakeToday >= waterGoal && waterIntakeToday - amount < waterGoal) {
+    showToast('🎉 Daily water goal reached!');
+    if ('Notification' in window && Notification.permission === 'granted') {
+      new Notification('FoodLog Pro', {
+        body: '🎉 You reached your daily water goal!',
+        icon: '/icon-192.png'
+      });
+    }
+  }
+}
+
+async function renderWaterHistory() {
+  const allWater = await getAllWaterIntake();
+  const last7Days = [];
+  
+  for (let i = 6; i >= 0; i--) {
+    const date = new Date();
+    date.setDate(date.getDate() - i);
+    const dayWater = allWater.filter(w => isSameDay(new Date(w.date), date));
+    const total = dayWater.reduce((sum, w) => sum + w.amount, 0);
+    last7Days.push({
+      date: date,
+      total: total,
+      percentage: Math.round((total / waterGoal) * 100)
+    });
+  }
+  
+  let html = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:8px">';
+  last7Days.forEach(day => {
+    const isToday = isSameDay(day.date, new Date());
+    const color = day.percentage >= 100 ? 'var(--green)' : day.percentage >= 80 ? 'var(--orange)' : 'var(--accent)';
+    html += `
+      <div class="stat-card" style="${isToday ? 'border:2px solid var(--accent)' : ''}">
+        <div class="stat-label">${day.date.toLocaleDateString('en-US', {weekday: 'short'})}</div>
+        <div style="font-size:20px;font-weight:bold;color:${color}">${day.total}</div>
+        <div style="font-size:11px;opacity:0.8">ml (${day.percentage}%)</div>
+      </div>
+    `;
+  });
+  html += '</div>';
+  
+  document.getElementById('waterHistory').innerHTML = html;
+}
+
+document.querySelectorAll('.water-add').forEach(btn => {
+  btn.addEventListener('click', async () => {
+    const amount = parseInt(btn.dataset.amount);
+    await logWater(amount);
+    renderWaterTab();
+  });
+});
+
+document.getElementById('waterReset')?.addEventListener('click', async () => {
+  if (!confirm('Reset today\'s water intake?')) return;
+  
+  const allWater = await getAllWaterIntake();
+  const today = allWater.filter(w => isSameDay(new Date(w.date), new Date()));
+  
+  for (const entry of today) {
+    await deleteWaterIntake(entry.id);
+  }
+  
+  waterIntakeToday = 0;
+  showToast('Water intake reset');
+  renderWaterTab();
+});
+
+document.getElementById('waterGoalInput')?.addEventListener('change', async (e) => {
+  const newGoal = parseInt(e.target.value) || 2000;
+  const settings = await getSettings();
+  settings.waterGoal = newGoal;
+  await saveSettings(settings);
+  waterGoal = newGoal;
+  showToast('Water goal updated ✓');
+  renderWaterTab();
+});
+
+// Fasting Tracking Functions
+async function renderFastingTab() {
+  // Check if there's an active fast
+  const settings = await getSettings();
+  if (settings.fastingStart) {
+    fastingStartTime = settings.fastingStart;
+    startFastingTimer();
+    document.getElementById('startFastBtn').style.display = 'none';
+    document.getElementById('endFastBtn').style.display = 'inline-block';
+  } else {
+    fastingStartTime = null;
+    document.getElementById('startFastBtn').style.display = 'inline-block';
+    document.getElementById('endFastBtn').style.display = 'none';
+    document.getElementById('fastingTime').textContent = '00:00:00';
+    document.getElementById('fastingStatus').textContent = 'Not fasting';
+  }
+  
+  renderFastingHistory();
+}
+
+function startFastingTimer() {
+  if (fastingInterval) clearInterval(fastingInterval);
+  
+  fastingInterval = setInterval(() => {
+    if (!fastingStartTime) {
+      clearInterval(fastingInterval);
+      return;
+    }
+    
+    const elapsed = Date.now() - fastingStartTime;
+    document.getElementById('fastingTime').textContent = formatTime(elapsed);
+    
+    const hours = Math.floor(elapsed / 3600000);
+    if (hours >= 12) {
+      document.getElementById('fastingStatus').textContent = `Great! ${hours} hours fasting`;
+      document.getElementById('fastingTimer').style.background = 'linear-gradient(135deg, var(--green), var(--accent))';
+    } else {
+      document.getElementById('fastingStatus').textContent = 'Fasting in progress...';
+    }
+  }, 1000);
+}
+
+document.getElementById('startFastBtn')?.addEventListener('click', async () => {
+  fastingStartTime = Date.now();
+  const settings = await getSettings();
+  settings.fastingStart = fastingStartTime;
+  await saveSettings(settings);
+  
+  document.getElementById('startFastBtn').style.display = 'none';
+  document.getElementById('endFastBtn').style.display = 'inline-block';
+  
+  startFastingTimer();
+  showToast('Fast started! ⏱️');
+  
+  // Schedule notification after 12 hours
+  if ('Notification' in window && Notification.permission === 'granted') {
+    setTimeout(() => {
+      new Notification('FoodLog Pro', {
+        body: '🎉 You\'ve reached 12 hours of fasting!',
+        icon: '/icon-192.png'
+      });
+    }, 12 * 60 * 60 * 1000);
+  }
+});
+
+document.getElementById('endFastBtn')?.addEventListener('click', async () => {
+  if (!fastingStartTime) return;
+  
+  const duration = Date.now() - fastingStartTime;
+  const hours = Math.floor(duration / 3600000);
+  
+  // Save fasting session
+  const session = {
+    id: generateUUID(),
+    startTime: fastingStartTime,
+    endTime: Date.now(),
+    duration: duration,
+    hours: hours,
+    date: new Date().toDateString()
+  };
+  
+  await saveFastingSession(session);
+  
+  // Clear active fast
+  fastingStartTime = null;
+  const settings = await getSettings();
+  delete settings.fastingStart;
+  await saveSettings(settings);
+  
+  if (fastingInterval) clearInterval(fastingInterval);
+  
+  document.getElementById('startFastBtn').style.display = 'inline-block';
+  document.getElementById('endFastBtn').style.display = 'none';
+  document.getElementById('fastingTime').textContent = '00:00:00';
+  document.getElementById('fastingStatus').textContent = 'Not fasting';
+  document.getElementById('fastingTimer').style.background = 'linear-gradient(135deg, var(--purple), var(--blue))';
+  
+  showToast(`Fast completed! Duration: ${hours} hours ✓`);
+  renderFastingHistory();
+});
+
+document.querySelectorAll('.fasting-preset').forEach(btn => {
+  btn.addEventListener('click', async () => {
+    const hours = parseInt(btn.dataset.hours);
+    const startTime = Date.now() - (hours * 60 * 60 * 1000);
+    
+    const session = {
+      id: generateUUID(),
+      startTime: startTime,
+      endTime: Date.now(),
+      duration: hours * 60 * 60 * 1000,
+      hours: hours,
+      date: new Date().toDateString()
+    };
+    
+    await saveFastingSession(session);
+    showToast(`${hours}-hour fast logged ✓`);
+    renderFastingHistory();
+  });
+});
+
+async function renderFastingHistory() {
+  const sessions = await getAllFastingSessions();
+  const recent = sessions.slice(0, 10);
+  
+  if (recent.length === 0) {
+    document.getElementById('fastingHistory').innerHTML = '<p class="muted">No fasting history yet</p>';
+    return;
+  }
+  
+  let html = '<div style="display:flex;flex-direction:column;gap:8px">';
+  recent.forEach(session => {
+    const date = new Date(session.startTime);
+    html += `
+      <div class="card" style="background:rgba(0,0,0,0.02);padding:8px">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <strong>${session.hours} hours</strong>
+            <div><small class="muted">${date.toLocaleDateString()} ${date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</small></div>
+          </div>
+          <button class="btn-secondary btn-small delete-fast" data-id="${session.id}">Delete</button>
+        </div>
+      </div>
+    `;
+  });
+  html += '</div>';
+  
+  document.getElementById('fastingHistory').innerHTML = html;
+  
+  document.querySelectorAll('.delete-fast').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      if (confirm('Delete this fasting session?')) {
+        await deleteFastingSession(btn.dataset.id);
+        renderFastingHistory();
+        showToast('Session deleted');
+      }
+    });
+  });
+}
+
+// Body Metrics Functions
+async function renderMetricsTab() {
+  const metrics = await getAllMetrics();
+  const latest = metrics[0];
+  
+  if (latest) {
+    document.getElementById('currentWeight').textContent = latest.weight || '--';
+    document.getElementById('currentBodyFat').textContent = latest.bodyFat || '--';
+  }
+  
+  // Calculate progress towards goal
+  const settings = await getSettings();
+  if (settings.currentWeight && settings.targetWeight) {
+    const remaining = Math.abs(settings.currentWeight - settings.targetWeight);
+    document.getElementById('weightProgress').textContent = remaining.toFixed(1);
+  }
+  
+  renderMetricsHistory();
+  renderMetricsChart();
+}
+
+document.getElementById('logMetricBtn')?.addEventListener('click', async () => {
+  const weight = parseFloat(document.getElementById('metricWeight').value);
+  const bodyFat = parseFloat(document.getElementById('metricBodyFat').value);
+  const waist = parseFloat(document.getElementById('metricWaist').value);
+  const chest = parseFloat(document.getElementById('metricChest').value);
+  const arms = parseFloat(document.getElementById('metricArms').value);
+  const thighs = parseFloat(document.getElementById('metricThighs').value);
+  const notes = document.getElementById('metricNotes').value.trim();
+  
+  if (!weight && !bodyFat && !waist && !chest && !arms && !thighs) {
+    showToast('Please enter at least one measurement');
+    return;
+  }
+  
+  const metric = {
+    id: generateUUID(),
+    weight: weight || null,
+    bodyFat: bodyFat || null,
+    waist: waist || null,
+    chest: chest || null,
+    arms: arms || null,
+    thighs: thighs || null,
+    notes: notes,
+    timestamp: Date.now(),
+    date: new Date().toDateString()
+  };
+  
+  await saveMetric(metric);
+  
+  // Clear form
+  document.getElementById('metricWeight').value = '';
+  document.getElementById('metricBodyFat').value = '';
+  document.getElementById('metricWaist').value = '';
+  document.getElementById('metricChest').value = '';
+  document.getElementById('metricArms').value = '';
+  document.getElementById('metricThighs').value = '';
+  document.getElementById('metricNotes').value = '';
+  
+  showToast('Measurement logged 📊');
+  renderMetricsTab();
+});
+
+async function renderMetricsHistory() {
+  const metrics = await getAllMetrics();
+  
+  if (metrics.length === 0) {
+    document.getElementById('metricsHistory').innerHTML = '<p class="muted">No measurements yet</p>';
+    return;
+  }
+  
+  let html = '<div style="display:flex;flex-direction:column;gap:8px">';
+  metrics.slice(0, 20).forEach(m => {
+    const date = new Date(m.timestamp);
+    html += `
+      <div class="card" style="background:rgba(0,0,0,0.02);padding:10px">
+        <div style="display:flex;justify-content:space-between;align-items:start">
+          <div style="flex:1">
+            <div><strong>${date.toLocaleDateString()}</strong></div>
+            <div class="nutri-grid" style="margin-top:6px">
+              ${m.weight ? `<div class="nutri"><small>Weight:</small> <strong>${m.weight}kg</strong></div>` : ''}
+              ${m.bodyFat ? `<div class="nutri"><small>Body Fat:</small> <strong>${m.bodyFat}%</strong></div>` : ''}
+              ${m.waist ? `<div class="nutri"><small>Waist:</small> <strong>${m.waist}cm</strong></div>` : ''}
+              ${m.chest ? `<div class="nutri"><small>Chest:</small> <strong>${m.chest}cm</strong></div>` : ''}
+              ${m.arms ? `<div class="nutri"><small>Arms:</small> <strong>${m.arms}cm</strong></div>` : ''}
+              ${m.thighs ? `<div class="nutri"><small>Thighs:</small> <strong>${m.thighs}cm</strong></div>` : ''}
+            </div>
+            ${m.notes ? `<div style="margin-top:6px"><small class="muted">${escapeHtml(m.notes)}</small></div>` : ''}
+          </div>
+          <button class="btn-secondary btn-small delete-metric" data-id="${m.id}">Delete</button>
+        </div>
+      </div>
+    `;
+  });
+  html += '</div>';
+  
+  document.getElementById('metricsHistory').innerHTML = html;
+  
+  document.querySelectorAll('.delete-metric').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      if (confirm('Delete this measurement?')) {
+        await deleteMetric(btn.dataset.id);
+        renderMetricsTab();
+        showToast('Measurement deleted');
+      }
+    });
+  });
+}
+
+async function renderMetricsChart() {
+  const metrics = await getAllMetrics();
+  const last30 = metrics.slice(0, 30).reverse();
+  
+  if (last30.length < 2) {
+    document.getElementById('metricsChart').innerHTML = '<div style="padding:20px;text-align:center;opacity:0.6">Log more measurements to see progress chart</div>';
+    return;
+  }
+  
+  // Simple ASCII-style chart
+  let html = '<div style="padding:12px;background:rgba(0,0,0,0.02);border-radius:8px">';
+  html += '<div style="font-weight:bold;margin-bottom:8px">Weight Progress (Last 30 days)</div>';
+  
+  const weights = last30.filter(m => m.weight).map(m => ({date: new Date(m.timestamp), weight: m.weight}));
+  
+  if (weights.length >= 2) {
+    const minWeight = Math.min(...weights.map(w => w.weight));
+    const maxWeight = Math.max(...weights.map(w => w.weight));
+    const range = maxWeight - minWeight || 1;
+    
+    weights.forEach((w, idx) => {
+      const barHeight = ((w.weight - minWeight) / range) * 100;
+      const change = idx > 0 ? w.weight - weights[idx - 1].weight : 0;
+      const changeColor = change > 0 ? 'var(--red)' : change < 0 ? 'var(--green)' : 'var(--accent)';
+      
+      html += `
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+          <div style="width:80px;font-size:11px">${w.date.toLocaleDateString('en-US', {month:'short',day:'numeric'})}</div>
+          <div style="flex:1;height:20px;background:rgba(0,0,0,0.05);border-radius:4px;position:relative;overflow:hidden">
+            <div style="height:100%;width:${barHeight}%;background:var(--accent);border-radius:4px"></div>
+          </div>
+          <div style="width:60px;font-size:12px;font-weight:bold">${w.weight}kg</div>
+          ${change !== 0 ? `<div style="width:50px;font-size:11px;color:${changeColor}">${change > 0 ? '+' : ''}${change.toFixed(1)}</div>` : ''}
+        </div>
+      `;
+    });
+  }
+  
+  html += '</div>';
+  document.getElementById('metricsChart').innerHTML = html;
+}
+
+document.getElementById('saveWeightGoalBtn')?.addEventListener('click', async () => {
+  const currentWeight = parseFloat(document.getElementById('goalCurrentWeight').value);
+  const targetWeight = parseFloat(document.getElementById('goalTargetWeight').value);
+  const goalType = document.getElementById('goalType').value;
+  
+  if (!currentWeight || !targetWeight) {
+    showToast('Please enter both current and target weight');
+    return;
+  }
+  
+  const settings = await getSettings();
+  settings.currentWeight = currentWeight;
+  settings.targetWeight = targetWeight;
+  settings.goalType = goalType;
+  await saveSettings(settings);
+  
+  showToast('Weight goal saved ✓');
+  renderMetricsTab();
+});
+
+// Meal Planning Functions
+async function renderMealPlanningTab() {
+  await populateWeekSelector();
+  await renderCurrentMealPlan();
+}
+
+async function populateWeekSelector() {
+  const plans = await getAllMealPlans();
+  const selector = document.getElementById('weekSelector');
+  
+  if (plans.length === 0) {
+    selector.innerHTML = '<option value="">No meal plans yet</option>';
+    return;
+  }
+  
+  let html = '';
+  plans.forEach(plan => {
+    const date = new Date(plan.weekStart);
+    html += `<option value="${plan.id}">${date.toLocaleDateString()} - Week</option>`;
+  });
+  selector.innerHTML = html;
+  
+  if (plans.length > 0) {
+    currentMealPlan = plans[0];
+    selector.value = currentMealPlan.id;
+  }
+}
+
+async function renderCurrentMealPlan() {
+  if (!currentMealPlan) {
+    document.getElementById('mealPlanView').innerHTML = '<p class="muted">Create a meal plan to get started</p>';
+    return;
+  }
+  
+  const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+  let html = '<div class="meal-plan-grid">';
+  
+  days.forEach(day => {
+    const dayData = currentMealPlan.days[day];
+    html += `
+      <div class="meal-plan-day">
+        <h4>${capitalize(day)}</h4>
+        <div style="margin-top:8px">
+          <strong style="font-size:12px">Breakfast:</strong>
+          <div style="margin:4px 0;padding:6px;background:rgba(0,0,0,0.03);border-radius:4px;font-size:13px">
+            ${dayData?.breakfast || '<em class="muted">Not planned</em>'}
+          </div>
+        </div>
+        <div style="margin-top:8px">
+          <strong style="font-size:12px">Lunch:</strong>
+          <div style="margin:4px 0;padding:6px;background:rgba(0,0,0,0.03);border-radius:4px;font-size:13px">
+            ${dayData?.lunch || '<em class="muted">Not planned</em>'}
+          </div>
+        </div>
+        <div style="margin-top:8px">
+          <strong style="font-size:12px">Dinner:</strong>
+          <div style="margin:4px 0;padding:6px;background:rgba(0,0,0,0.03);border-radius:4px;font-size:13px">
+            ${dayData?.dinner || '<em class="muted">Not planned</em>'}
+          </div>
+        </div>
+        <div style="margin-top:8px">
+          <strong style="font-size:12px">Snacks:</strong>
+          <div style="margin:4px 0;padding:6px;background:rgba(0,0,0,0.03);border-radius:4px;font-size:13px">
+            ${dayData?.snacks || '<em class="muted">Not planned</em>'}
+          </div>
+        </div>
+        <button class="btn-secondary btn-small edit-meal-day" data-day="${day}" style="margin-top:8px;width:100%">Edit Day</button>
+      </div>
+    `;
+  });
+  
+  html += '</div>';
+  document.getElementById('mealPlanView').innerHTML = html;
+  
+  document.querySelectorAll('.edit-meal-day').forEach(btn => {
+    btn.addEventListener('click', () => {
+      openMealPlanDayModal(btn.dataset.day);
+    });
+  });
+}
+
+document.getElementById('createWeekPlanBtn')?.addEventListener('click', async () => {
+  const weekStart = new Date();
+  weekStart.setHours(0, 0, 0, 0);
+  
+  const plan = {
+    id: generateUUID(),
+    weekStart: weekStart.getTime(),
+    days: {
+      monday: {breakfast: null, lunch: null, dinner: null, snacks: null},
+      tuesday: {breakfast: null, lunch: null, dinner: null, snacks: null},
+      wednesday: {breakfast: null, lunch: null, dinner: null, snacks: null},
+      thursday: {breakfast: null, lunch: null, dinner: null, snacks: null},
+      friday: {breakfast: null, lunch: null, dinner: null, snacks: null},
+      saturday: {breakfast: null, lunch: null, dinner: null, snacks: null},
+      sunday: {breakfast: null, lunch: null, dinner: null, snacks: null}
+    },
+    created: Date.now()
+  };
+  
+  await saveMealPlan(plan);
+  currentMealPlan = plan;
+  showToast('New meal plan created ✓');
+  renderMealPlanningTab();
+});
+
+document.getElementById('generatePlanBtn')?.addEventListener('click', async () => {
+  showToast('Generating AI meal plan...');
+  
+  try {
+    const calories = userGoals.calories || 2000;
+    const suggestions = await getAIMealSuggestions(calories, 'balanced', []);
+    
+    if (!suggestions || suggestions.length === 0) {
+      showToast('Could not generate meal plan. Try manual planning.');
+      return;
+    }
+    
+    // Create new plan with AI suggestions
+    const weekStart = new Date();
+    weekStart.setHours(0, 0, 0, 0);
+    
+    const plan = {
+      id: generateUUID(),
+      weekStart: weekStart.getTime(),
+      days: {},
+      created: Date.now()
+    };
+    
+    const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+    days.forEach(day => {
+      plan.days[day] = {
+        breakfast: suggestions[0]?.assigned[0]?.label || null,
+        lunch: suggestions[1]?.assigned[0]?.label || null,
+        dinner: suggestions[2]?.assigned[0]?.label || null,
+        snacks: 'Fruits and nuts'
+      };
+    });
+    
+    await saveMealPlan(plan);
+    currentMealPlan = plan;
+    showToast('AI meal plan generated! 🤖');
+    renderMealPlanningTab();
+    
+  } catch (e) {
+    console.error('Auto-generate error:', e);
+    showToast('Error generating plan. Try manual planning.');
+  }
+});
+
+document.getElementById('weekSelector')?.addEventListener('change', async (e) => {
+  const planId = e.target.value;
+  const plans = await getAllMealPlans();
+  currentMealPlan = plans.find(p => p.id === planId);
+  renderCurrentMealPlan();
+});
+
+async function openMealPlanDayModal(day) {
+  const recipes = await getAllRecipes();
+  
+  // Populate recipe dropdowns
+  let recipeOptions = '<option value="">-- Select Recipe --</option>';
+  recipes.forEach(r => {
+    recipeOptions += `<option value="${escapeHtml(r.name)}">${escapeHtml(r.name)}</option>`;
+  });
+  
+  document.getElementById('planBreakfast').innerHTML = recipeOptions;
+  document.getElementById('planLunch').innerHTML = recipeOptions;
+  document.getElementById('planDinner').innerHTML = recipeOptions;
+  
+  // Pre-fill if already planned
+  if (currentMealPlan.days[day]) {
+    document.getElementById('planBreakfast').value = currentMealPlan.days[day].breakfast || '';
+    document.getElementById('planLunch').value = currentMealPlan.days[day].lunch || '';
+    document.getElementById('planDinner').value = currentMealPlan.days[day].dinner || '';
+    document.getElementById('planSnacks').value = currentMealPlan.days[day].snacks || '';
+  }
+  
+  document.getElementById('planDayName').textContent = capitalize(day);
+  document.getElementById('mealPlanDayModal').style.display = 'flex';
+  
+  // Store current day for saving
+  document.getElementById('mealPlanDayModal').dataset.day = day;
+}
+
+document.getElementById('planDayCancel')?.addEventListener('click', () => {
+  document.getElementById('mealPlanDayModal').style.display = 'none';
+});
+
+document.getElementById('planDaySave')?.addEventListener('click', async () => {
+  const day = document.getElementById('mealPlanDayModal').dataset.day;
+  
+  currentMealPlan.days[day] = {
+    breakfast: document.getElementById('planBreakfast').value || null,
+    lunch: document.getElementById('planLunch').value || null,
+    dinner: document.getElementById('planDinner').value || null,
+    snacks: document.getElementById('planSnacks').value || null
+  };
+  
+  await saveMealPlan(currentMealPlan);
+  showToast('Day updated ✓');
+  document.getElementById('mealPlanDayModal').style.display = 'none';
+  renderCurrentMealPlan();
+});
+
+// Shopping List Functions
+async function renderShoppingList() {
+  const items = await getAllShoppingItems();
+  
+  if (items.length === 0) {
+    document.getElementById('shoppingList').innerHTML = '<li style="list-style:none;padding:12px;text-align:center;opacity:0.6">No items in shopping list</li>';
+    return;
+  }
+  
+  let html = '';
+  items.forEach(item => {
+    html += `
+      <li class="shopping-item ${item.checked ? 'checked' : ''}" data-id="${item.id}">
+        <div style="display:flex;align-items:center;gap:8px">
+          <input type="checkbox" ${item.checked ? 'checked' : ''} class="shopping-check" />
+          <span>${escapeHtml(item.name)}</span>
+        </div>
+        <button class="btn-secondary btn-small delete-shopping" data-id="${item.id}">✕</button>
+      </li>
+    `;
+  });
+  
+  document.getElementById('shoppingList').innerHTML = html;
+  
+  document.querySelectorAll('.shopping-check').forEach(checkbox => {
+    checkbox.addEventListener('change', async (e) => {
+      const li = e.target.closest('.shopping-item');
+      const id = li.dataset.id;
+      const items = await getAllShoppingItems();
+      const item = items.find(i => i.id === id);
+      
+      if (item) {
+        item.checked = e.target.checked;
+        await saveShoppingItem(item);
+        li.classList.toggle('checked', e.target.checked);
+      }
+    });
+  });
+  
+  document.querySelectorAll('.delete-shopping').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      await deleteShoppingItem(btn.dataset.id);
+      renderShoppingList();
+    });
+  });
+}
+
+document.getElementById('addShoppingItemBtn')?.addEventListener('click', async () => {
+  const input = document.getElementById('shoppingItemInput');
+  const name = input.value.trim();
+  
+  if (!name) {
+    showToast('Please enter an item name');
+    return;
+  }
+  
+  const item = {
+    id: generateUUID(),
+    name: name,
+    checked: false,
+    timestamp: Date.now()
+  };
+  
+  await saveShoppingItem(item);
+  input.value = '';
+  showToast('Item added to shopping list');
+  renderShoppingList();
+});
+
+document.getElementById('shoppingItemInput')?.addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') {
+    document.getElementById('addShoppingItemBtn').click();
+  }
+});
+
+document.getElementById('generateShoppingListBtn')?.addEventListener('click', async () => {
+  if (!currentMealPlan) {
+    showToast('Create a meal plan first');
+    return;
+  }
+  
+  // Extract all recipes from meal plan
+  const recipeNames = new Set();
+  Object.values(currentMealPlan.days).forEach(day => {
+    if (day.breakfast) recipeNames.add(day.breakfast);
+    if (day.lunch) recipeNames.add(day.lunch);
+    if (day.dinner) recipeNames.add(day.dinner);
+  });
+  
+  if (recipeNames.size === 0) {
+    showToast('No recipes in meal plan');
+    return;
+  }
+  
+  const recipes = await getAllRecipes();
+  const ingredientsMap = new Map();
+  
+  // Aggregate ingredients
+  recipeNames.forEach(recipeName => {
+    const recipe = recipes.find(r => r.name === recipeName);
+    if (recipe) {
+      recipe.ingredients.forEach(ing => {
+        const key = ing.name.toLowerCase();
+        if (ingredientsMap.has(key)) {
+          ingredientsMap.set(key, ingredientsMap.get(key) + ing.qty);
+        } else {
+          ingredientsMap.set(key, ing.qty);
+        }
+      });
+    }
+  });
+  
+  // Add to shopping list
+  for (const [name, qty] of ingredientsMap.entries()) {
+    const item = {
+      id: generateUUID(),
+      name: `${capitalize(name)} (${Math.round(qty)}g)`,
+      checked: false,
+      timestamp: Date.now()
+    };
+    await saveShoppingItem(item);
+  }
+  
+  showToast(`Generated shopping list with ${ingredientsMap.size} items! 🛒`);
+  renderShoppingList();
+});
+
+document.getElementById('clearShoppingListBtn')?.addEventListener('click', async () => {
+  if (!confirm('Clear entire shopping list?')) return;
+  
+  await clearShoppingList();
+  showToast('Shopping list cleared');
+  renderShoppingList();
+});
+
+
+// Settings & Macro Calculator Functions
+document.getElementById('calculateMacrosBtn')?.addEventListener('click', () => {
+  const weight = parseFloat(document.getElementById('calcWeight').value);
+  const goal = document.getElementById('calcGoal').value;
+  const activity = document.getElementById('calcActivity').value;
+  
+  if (!weight) {
+    showToast('Please enter your weight');
+    return;
+  }
+  
+  // Activity multipliers
+  const activityMultipliers = {
+    sedentary: 1.2,
+    light: 1.375,
+    moderate: 1.55,
+    active: 1.725
+  };
+  
+  // Base metabolic rate (simple calculation)
+  const bmr = 10 * weight + 6.25 * 175 - 5 * 30 + 5; // Assuming average height & age
+  const tdee = bmr * activityMultipliers[activity];
+  
+  let calories, protein, carbs, fat;
+  
+  switch (goal) {
+    case 'lose':
+      calories = Math.round(tdee * 0.8); // 20% deficit
+      protein = Math.round(weight * 2.2);
+      fat = Math.round(weight * 0.8);
+      carbs = Math.round((calories - (protein * 4 + fat * 9)) / 4);
+      break;
+    case 'maintain':
+      calories = Math.round(tdee);
+      protein = Math.round(weight * 2.0);
+      fat = Math.round(weight * 1.0);
+      carbs = Math.round((calories - (protein * 4 + fat * 9)) / 4);
+      break;
+    case 'gain':
+      calories = Math.round(tdee * 1.1); // 10% surplus
+      protein = Math.round(weight * 2.2);
+      fat = Math.round(weight * 1.0);
+      carbs = Math.round((calories - (protein * 4 + fat * 9)) / 4);
+      break;
+  }
+  
+  const resultsDiv = document.getElementById('macroResults');
+  resultsDiv.innerHTML = `
+    <div class="card" style="background:rgba(0,0,0,0.02);margin-top:12px">
+      <h4>Recommended Daily Macros</h4>
+      <div class="dashboard-grid" style="margin-top:12px">
+        <div class="stat-card">
+          <div class="stat-label">Calories</div>
+          <div class="stat-value">${calories}</div>
+          <small class="muted">kcal/day</small>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Protein</div>
+          <div class="stat-value">${protein}</div>
+          <small class="muted">g/day</small>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Carbs</div>
+          <div class="stat-value">${carbs}</div>
+          <small class="muted">g/day</small>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Fat</div>
+          <div class="stat-value">${fat}</div>
+          <small class="muted">g/day</small>
+        </div>
+      </div>
+      <button id="applyCalculatedMacros" class="btn" style="margin-top:12px;width:100%">Apply These as My Goals</button>
+    </div>
+  `;
+  
+  document.getElementById('applyCalculatedMacros').addEventListener('click', async () => {
+    userGoals = {calories, protein, carbs, fat};
+    await saveGoals(userGoals);
+    showToast('Goals updated with calculated macros ✓');
+    renderDashboard();
+  });
+});
+
+// Notification settings event listeners
+document.getElementById('notifyMeals')?.addEventListener('change', async (e) => {
+  const settings = await getSettings();
+  settings.notifyMeals = e.target.checked;
+  await saveSettings(settings);
+});
+
+document.getElementById('notifyWater')?.addEventListener('change', async (e) => {
+  const settings = await getSettings();
+  settings.notifyWater = e.target.checked;
+  await saveSettings(settings);
+});
+
+document.getElementById('notifyFasting')?.addEventListener('change', async (e) => {
+  const settings = await getSettings();
+  settings.notifyFasting = e.target.checked;
+  await saveSettings(settings);
+});
+
+// Load notification settings
+async function loadNotificationSettings() {
+  const settings = await getSettings();
+  if (document.getElementById('notifyMeals')) {
+    document.getElementById('notifyMeals').checked = settings.notifyMeals || false;
+  }
+  if (document.getElementById('notifyWater')) {
+    document.getElementById('notifyWater').checked = settings.notifyWater || false;
+  }
+  if (document.getElementById('notifyFasting')) {
+    document.getElementById('notifyFasting').checked = settings.notifyFasting || false;
+  }
+}
+
+// Log Entries Rendering
+async function renderLogEntries() {
+  const entries = await getAllEntries();
+  const filtered = entries.filter(e => {
+    const entryDate = new Date(e.date);
+    const matchesDate = isSameDay(entryDate, currentDate);
+    const matchesMeal = activeMealFilter === 'all' || e.meal === activeMealFilter;
+    return matchesDate && matchesMeal;
+  });
+  
+  if (filtered.length === 0) {
+    logList.innerHTML = '<p class="muted">No entries yet for this selection</p>';
+    return;
+  }
+  
+  let html = '';
+  let totals = {
+    energy_kcal: 0,
+    protein: 0,
+    carbs: 0,
+    fat: 0,
+    fiber: 0,
+    vitamin_a: 0,
+    vitamin_c: 0,
+    vitamin_d: 0,
+    calcium: 0,
+    iron: 0,
+    magnesium: 0,
+    zinc: 0
+  };
+  
+  filtered.forEach(e => {
+    Object.keys(totals).forEach(key => {
+      totals[key] += e.nutrients[key] || 0;
+    });
+    
+    const hasMicros = (e.nutrients.vitamin_a || 0) + (e.nutrients.vitamin_c || 0) + (e.nutrients.calcium || 0) > 0;
+    const hasPhoto = e.photo ? true : false;
+    
+    html += `
+      <div class="log-entry ${hasPhoto ? 'has-photo' : ''}">
+        ${hasPhoto ? `<img src="${e.photo}" class="entry-photo" alt="Food photo" data-photo="${e.photo}" />` : ''}
+        <div style="flex:1">
+          <div style="display:flex;justify-content:space-between;align-items:start">
+            <div>
+              <strong>${escapeHtml(e.productName)}</strong>
+              <div><small class="muted">${capitalize(e.meal)} • ${e.qty}${e.isSupplement ? ' dose' : 'g'}</small></div>
+              ${e.mood ? `<div style="margin-top:4px"><span style="font-size:18px">${e.mood}</span></div>` : ''}
+              ${e.hunger ? `<div><small class="muted">Hunger: ${e.hunger}/10</small></div>` : ''}
+              ${e.notes ? `<div style="margin-top:4px"><small class="muted">${escapeHtml(e.notes)}</small></div>` : ''}
+            </div>
+            <div style="display:flex;gap:4px">
+              <button class="btn-secondary btn-small edit-entry" data-id="${e.id}">Edit</button>
+              <button class="btn-secondary btn-small delete-entry" data-id="${e.id}">Delete</button>
+            </div>
+          </div>
+          <div class="nutri-grid">
+            ${!e.isSupplement ? `<div class="nutri"><strong>${e.nutrients.energy_kcal}</strong> kcal</div>` : ''}
+            ${!e.isSupplement ? `<div class="nutri"><strong>${e.nutrients.protein}g</strong> protein</div>` : ''}
+            ${!e.isSupplement ? `<div class="nutri"><strong>${e.nutrients.carbs}g</strong> carbs</div>` : ''}
+            ${!e.isSupplement ? `<div class="nutri"><strong>${e.nutrients.fat}g</strong> fat</div>` : ''}
+            ${hasMicros ? `<div class="nutri" style="grid-column:1/-1"><small class="muted">+ Micronutrients</small></div>` : ''}
+          </div>
+        </div>
+      </div>
+    `;
+  });
+  
+  // Add totals section
+  html += `
+    <div class="totals">
+      <strong>Totals:</strong>
+      <div class="nutri-grid">
+        <div class="nutri"><strong>${Math.round(totals.energy_kcal)}</strong> kcal</div>
+        <div class="nutri"><strong>${Math.round(totals.protein * 10) / 10}g</strong> protein</div>
+        <div class="nutri"><strong>${Math.round(totals.carbs * 10) / 10}g</strong> carbs</div>
+        <div class="nutri"><strong>${Math.round(totals.fat * 10) / 10}g</strong> fat</div>
+      </div>
+      ${totals.vitamin_a + totals.vitamin_c + totals.calcium > 0 ? `
+        <div style="margin-top:8px">
+          <small><strong>Micronutrients:</strong></small>
+          <div class="micro-grid">
+            ${totals.vitamin_a ? `<div class="micro-item">Vit A: <strong>${Math.round(totals.vitamin_a)}µg</strong></div>` : ''}
+            ${totals.vitamin_c ? `<div class="micro-item">Vit C: <strong>${Math.round(totals.vitamin_c)}mg</strong></div>` : ''}
+            ${totals.vitamin_d ? `<div class="micro-item">Vit D: <strong>${Math.round(totals.vitamin_d)}µg</strong></div>` : ''}
+            ${totals.calcium ? `<div class="micro-item">Calcium: <strong>${Math.round(totals.calcium)}mg</strong></div>` : ''}
+            ${totals.iron ? `<div class="micro-item">Iron: <strong>${Math.round(totals.iron * 10) / 10}mg</strong></div>` : ''}
+            ${totals.magnesium ? `<div class="micro-item">Magnesium: <strong>${Math.round(totals.magnesium)}mg</strong></div>` : ''}
+            ${totals.zinc ? `<div class="micro-item">Zinc: <strong>${Math.round(totals.zinc * 10) / 10}mg</strong></div>` : ''}
+          </div>
+        </div>
+      ` : ''}
+    </div>
+  `;
+  
+  logList.innerHTML = html;
+  
+  // Photo click handlers
+  document.querySelectorAll('.entry-photo').forEach(img => {
+    img.addEventListener('click', () => {
+      photoPreview.src = img.dataset.photo;
+      photoModal.style.display = 'flex';
+    });
+  });
+  
+  // Edit entry handlers
+  document.querySelectorAll('.edit-entry').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const id = btn.dataset.id;
+      const entry = filtered.find(e => e.id === id);
+      if (entry) {
+        openEditModal(entry);
+      }
+    });
+  });
+  
+  // Delete entry handlers
+  document.querySelectorAll('.delete-entry').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const id = btn.dataset.id;
+      const entry = filtered.find(e => e.id === id);
+      if (entry) {
+        await deleteEntry(id);
+        pushUndo('delete', entry);
+        showUndoBar('Entry deleted');
+        renderLogEntries();
+        renderDashboard();
+      }
+    });
+  });
+}
+
+// History View Rendering
+async function renderHistoryView() {
+  const entries = await getAllEntries();
+  const filtered = entries.filter(e => {
+    const entryDate = new Date(e.date);
+    return isSameDay(entryDate, currentDate);
+  });
+  
+  if (filtered.length === 0) {
+    historyView.innerHTML = '<p class="muted">No entries for this date</p>';
+    return;
+  }
+  
+  const byMeal = {
+    breakfast: [],
+    lunch: [],
+    dinner: [],
+    snack: []
+  };
+  
+  filtered.forEach(e => {
+    if (byMeal[e.meal]) byMeal[e.meal].push(e);
+  });
+  
+  let html = '';
+  
+  Object.keys(byMeal).forEach(meal => {
+    if (byMeal[meal].length === 0) return;
+    
+    let mealTotals = {
+      energy_kcal: 0,
+      protein: 0,
+      carbs: 0,
+      fat: 0
+    };
+    
+    let mealHtml = '';
+    
+    byMeal[meal].forEach(e => {
+      mealTotals.energy_kcal += e.nutrients.energy_kcal || 0;
+      mealTotals.protein += e.nutrients.protein || 0;
+      mealTotals.carbs += e.nutrients.carbs || 0;
+      mealTotals.fat += e.nutrients.fat || 0;
+      
+      mealHtml += `
+        <div style="padding:8px;background:rgba(0,0,0,0.02);border-radius:6px;margin-bottom:6px">
+          <div style="display:flex;gap:8px;align-items:center">
+            ${e.photo ? `<img src="${e.photo}" style="width:50px;height:50px;border-radius:6px;object-fit:cover" alt="Food" />` : ''}
+            <div style="flex:1">
+              <strong>${escapeHtml(e.productName)}</strong>
+              <div><small class="muted">${e.qty}g • ${e.nutrients.energy_kcal} kcal, ${e.nutrients.protein}g protein</small></div>
+              ${e.mood ? `<span style="font-size:14px">${e.mood}</span>` : ''}
+            </div>
+          </div>
+        </div>
+      `;
+    });
+    
+    html += `
+      <div class="card">
+        <h3>${capitalize(meal)}</h3>
+        ${mealHtml}
+        <div style="margin-top:8px;padding-top:8px;border-top:1px dashed rgba(0,0,0,0.1)">
+          <strong>Meal Total:</strong> 
+          ${Math.round(mealTotals.energy_kcal)} kcal, 
+          ${Math.round(mealTotals.protein * 10) / 10}g protein, 
+          ${Math.round(mealTotals.carbs * 10) / 10}g carbs, 
+          ${Math.round(mealTotals.fat * 10) / 10}g fat
+        </div>
+      </div>
+    `;
+  });
+  
+  historyView.innerHTML = html;
+}
+
+// Dashboard Rendering
+async function renderDashboard() {
+  const entries = await getAllEntries();
+  const today = entries.filter(e => isSameDay(new Date(e.date), new Date()));
+  userGoals = await getGoals();
+  
+  let totals = {
+    energy_kcal: 0,
+    protein: 0,
+    carbs: 0,
+    fat: 0
+  };
+  
+  today.forEach(e => {
+    totals.energy_kcal += e.nutrients.energy_kcal || 0;
+    totals.protein += e.nutrients.protein || 0;
+    totals.carbs += e.nutrients.carbs || 0;
+    totals.fat += e.nutrients.fat || 0;
+  });
+  
+  function getProgressClass(current, goal) {
+    const pct = (current / goal) * 100;
+    if (pct >= 100) return 'danger';
+    if (pct >= 80) return 'warning';
+    return '';
+  }
+  
+  function renderProgress(current, goal, label) {
+    const pct = Math.min((current / goal) * 100, 100);
+    const cls = getProgressClass(current, goal);
+    return `
+      <div class="stat-card">
+        <div class="stat-label">${label}</div>
+        <div class="stat-value">${Math.round(current)} / ${goal}</div>
+        <div class="progress-bar">
+          <div class="progress-fill ${cls}" style="width:${pct}%"></div>
+        </div>
+      </div>
+    `;
+  }
+  
+  let html = `
+    <div class="dashboard-grid">
+      ${renderProgress(totals.energy_kcal, userGoals.calories, 'Calories (kcal)')}
+      ${renderProgress(totals.protein, userGoals.protein, 'Protein (g)')}
+      ${renderProgress(totals.carbs, userGoals.carbs, 'Carbs (g)')}
+      ${renderProgress(totals.fat, userGoals.fat, 'Fat (g)')}
+    </div>
+    
+    <div style="margin-top:16px">
+      <h3>7-Day Summary</h3>
+      <div id="weekSummary"></div>
+    </div>
+    
+    <div style="margin-top:16px">
+      <h3>Nutrition Insights</h3>
+      <div id="nutritionInsights"></div>
+    </div>
+  `;
+  
+  dashboardContent.innerHTML = html;
+  
+  renderWeekSummary(entries);
+  renderNutritionInsights(totals);
+}
+
+function renderWeekSummary(allEntries) {
+  const today = new Date();
+  const weekData = [];
+  
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    const dayEntries = allEntries.filter(e => isSameDay(new Date(e.date), d));
+    const dayTotals = {
+      energy_kcal: 0,
+      protein: 0
+    };
+    dayEntries.forEach(e => {
+      dayTotals.energy_kcal += e.nutrients.energy_kcal || 0;
+      dayTotals.protein += e.nutrients.protein || 0;
+    });
+    weekData.push({
+      date: d,
+      calories: Math.round(dayTotals.energy_kcal),
+      protein: Math.round(dayTotals.protein)
+    });
+  }
+  
+  let html = '<div style="display:flex;gap:8px;flex-wrap:wrap">';
+  weekData.forEach(day => {
+    const isToday = isSameDay(day.date, today);
+    const goalMet = day.calories >= userGoals.calories * 0.9 && day.calories <= userGoals.calories * 1.1;
+    const borderColor = goalMet ? 'var(--green)' : 'transparent';
+    
+    html += `
+      <div class="stat-card" style="min-width:100px;${isToday ? 'border:2px solid var(--accent)' : `border:2px solid ${borderColor}`}">
+        <div class="stat-label">${day.date.toLocaleDateString('en-US', {weekday: 'short', month: 'numeric', day: 'numeric'})}</div>
+        <div style="font-size:18px;font-weight:bold;margin-top:4px">${day.calories}</div>
+        <div style="font-size:12px;opacity:0.8">${day.protein}g protein</div>
+        ${goalMet ? '<div style="font-size:10px;color:var(--green);margin-top:2px">✓ On track</div>' : ''}
+      </div>
+    `;
+  });
+  html += '</div>';
+  
+  document.getElementById('weekSummary').innerHTML = html;
+}
+
+function renderNutritionInsights(totals) {
+  const insights = [];
+  
+  // Calorie insights
+  const calDiff = totals.energy_kcal - userGoals.calories;
+  if (Math.abs(calDiff) < userGoals.calories * 0.1) {
+    insights.push({icon: '✓', text: 'Perfect calorie balance!', color: 'var(--green)'});
+  } else if (calDiff > 0) {
+    insights.push({icon: '⚠️', text: `${Math.abs(Math.round(calDiff))} kcal over goal`, color: 'var(--orange)'});
+  } else {
+    insights.push({icon: '📉', text: `${Math.abs(Math.round(calDiff))} kcal under goal`, color: 'var(--blue)'});
+  }
+  
+  // Protein insights
+  if (totals.protein >= userGoals.protein) {
+    insights.push({icon: '💪', text: 'Protein goal achieved!', color: 'var(--green)'});
+  } else {
+    const remaining = userGoals.protein - totals.protein;
+    insights.push({icon: '🥩', text: `${Math.round(remaining)}g more protein needed`, color: 'var(--accent)'});
+  }
+  
+  // Macro balance
+  const proteinCal = totals.protein * 4;
+  const carbsCal = totals.carbs * 4;
+  const fatCal = totals.fat * 9;
+  const totalCal = proteinCal + carbsCal + fatCal;
+  
+  if (totalCal > 0) {
+    const proteinPct = Math.round((proteinCal / totalCal) * 100);
+    const carbsPct = Math.round((carbsCal / totalCal) * 100);
+    const fatPct = Math.round((fatCal / totalCal) * 100);
+    
+    insights.push({
+      icon: '📊',
+      text: `Macro split: ${proteinPct}% protein, ${carbsPct}% carbs, ${fatPct}% fat`,
+      color: 'var(--purple)'
+    });
+  }
+  
+  let html = '<div style="display:flex;flex-direction:column;gap:8px">';
+  insights.forEach(insight => {
+    html += `
+      <div style="padding:10px;background:rgba(0,0,0,0.02);border-radius:8px;border-left:3px solid ${insight.color}">
+        <span style="font-size:18px;margin-right:8px">${insight.icon}</span>
+        <span>${insight.text}</span>
+      </div>
+    `;
+  });
+  html += '</div>';
+  
+  document.getElementById('nutritionInsights').innerHTML = html;
+}
+
+// Initialize Application
+async function init() {
+  try {
+    await openDB();
+    userGoals = await getGoals();
+    
+    // Load notification settings
+    await loadNotificationSettings();
+    
+    // Render initial views
+    renderLogEntries();
+    renderDashboard();
+    
+    // Check for active fasting session
+    const settings = await getSettings();
+    if (settings.fastingStart) {
+      fastingStartTime = settings.fastingStart;
+      startFastingTimer();
+    }
+    
+    // Schedule daily water reminder
+    if (settings.notifyWater) {
+      scheduleWaterReminders();
+    }
+    
+    // Schedule meal reminders
+    if (settings.notifyMeals) {
+      scheduleMealReminders();
+    }
+    
+    // Check if PWA
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(err => {
+        console.log('Service Worker registration failed:', err);
+      });
+    }
+    
+    // Show notification permission prompt if not asked
+    if ('Notification' in window && Notification.permission === 'default') {
+      setTimeout(() => {
+        notificationModal.style.display = 'flex';
+      }, 5000);
+    }
+    
+    showToast('FoodLog Pro loaded! 🎉');
+    
+  } catch (e) {
+    console.error('Initialization error:', e);
+    showToast('Error loading app. Please refresh.');
+  }
+}
+
+// Schedule Water Reminders
+function scheduleWaterReminders() {
+  // Remind every 2 hours during waking hours (8am - 10pm)
+  const now = new Date();
+  const currentHour = now.getHours();
+  
+  if (currentHour >= 8 && currentHour < 22) {
+    const nextReminder = new Date();
+    nextReminder.setHours(currentHour + 2, 0, 0, 0);
+    
+    const delay = nextReminder.getTime() - now.getTime();
+    
+    setTimeout(() => {
+      scheduleNotification(
+        'FoodLog Pro - Water Reminder 💧',
+        'Time to drink some water! Stay hydrated.',
+        0
+      );
+      scheduleWaterReminders(); // Reschedule
+    }, delay);
+  }
+}
+
+// Schedule Meal Reminders
+function scheduleMealReminders() {
+  const mealTimes = [
+    {hour: 8, minute: 0, meal: 'breakfast'},
+    {hour: 12, minute: 30, meal: 'lunch'},
+    {hour: 18, minute: 0, meal: 'dinner'}
+  ];
+  
+  const now = new Date();
+  
+  mealTimes.forEach(mealTime => {
+    const reminderTime = new Date();
+    reminderTime.setHours(mealTime.hour, mealTime.minute, 0, 0);
+    
+    if (reminderTime > now) {
+      const delay = reminderTime.getTime() - now.getTime();
+      setTimeout(() => {
+        scheduleNotification(
+          `FoodLog Pro - ${capitalize(mealTime.meal)} Time 🍽️`,
+          `Don't forget to log your ${mealTime.meal}!`,
+          0
+        );
+      }, delay);
+    }
+  });
+}
+
+// Print functionality
+window.addEventListener('beforeprint', () => {
+  document.querySelectorAll('button, .btn, .controls').forEach(el => {
+    el.style.display = 'none';
+  });
+});
+
+window.addEventListener('afterprint', () => {
+  document.querySelectorAll('button, .btn, .controls').forEach(el => {
+    el.style.display = '';
+  });
+});
+
+// Keyboard shortcuts
+document.addEventListener('keydown', (e) => {
+  // Ctrl/Cmd + K to focus search
+  if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+    e.preventDefault();
+    searchInput.focus();
+  }
+  
+  // Ctrl/Cmd + N for manual add
+  if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
+    e.preventDefault();
+    manualAddBtn.click();
+  }
+  
+  // Ctrl/Cmd + S to scan barcode
+  if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+    e.preventDefault();
+    scanBtn.click();
+  }
+  
+  // Escape to close modals
+  if (e.key === 'Escape') {
+    document.querySelectorAll('[id$="Modal"]').forEach(modal => {
+      if (modal.style.display === 'flex') {
+        modal.style.display = 'none';
+      }
+    });
+    if (voiceModal.style.display === 'flex') {
+      voiceModalClose.click();
+    }
+  }
+});
+
+// Handle offline status
+window.addEventListener('online', () => {
+  showToast('Back online! ✓');
+});
+
+window.addEventListener('offline', () => {
+  showToast('You\'re offline. Data will sync when back online.');
+});
+
+// Prevent accidental page close with unsaved changes
+window.addEventListener('beforeunload', (e) => {
+  if (selectedProduct) {
+    e.preventDefault();
+    e.returnValue = 'You have an unsaved product. Are you sure you want to leave?';
+    return e.returnValue;
+  }
+});
+
+// Auto-save draft entries (future feature)
+setInterval(async () => {
+  // Could auto-save draft entries or sync data
+  console.log('Auto-save check...');
+}, 60000); // Every minute
+
+// Initialize the app when DOM is ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
+
+console.log('FoodLog Pro v2.0 initialized! 🚀');
+console.log('Features: AI Meals, Edamam Integration, Voice Input, Photo Logging, Meal Planning, Water/Fasting Tracking, Body Metrics, Shopping Lists');
+</script>
+
+</body>
+</html>
