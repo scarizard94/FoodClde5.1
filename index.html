@@ -2614,33 +2614,54 @@ async function fetchProductByBarcode(barcode) {
 let searchAbortController = null;
 
 async function searchSuggestions(term) {
-  if (!term || term.trim().length < 2) return [];
+  if (!term || term.trim().length < 3) return [];
   if (searchAbortController) searchAbortController.abort();
   searchAbortController = new AbortController();
   const q = encodeURIComponent(term);
+  
+  // Try both German and International databases in PARALLEL (not sequential)
   const urls = [
-    `https://de.openfoodfacts.org/cgi/search.pl?search_terms=${q}&search_simple=1&action=process&json=1&page_size=10`,
-    `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${q}&search_simple=1&action=process&json=1&page_size=10`
+    `https://de.openfoodfacts.org/cgi/search.pl?search_terms=${q}&search_simple=1&action=process&json=1&page_size=6`,
+    `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${q}&search_simple=1&action=process&json=1&page_size=6`
   ];
-  for (const url of urls) {
-    try {
-      const res = await fetch(url, {signal: searchAbortController.signal});
-      if (!res.ok) continue;
-      const data = await res.json();
-      if (data && Array.isArray(data.products) && data.products.length) {
-        return data.products.map(p => ({
-          code: p.code,
-          product_name: p.product_name || p.generic_name || p.brands || 'Unknown',
-          nutriments: p.nutriments || {},
-          product: p
-        }));
+  
+  try {
+    // Fetch both at the same time with timeout
+    const fetchWithTimeout = (url, timeout = 2000) => {
+      return Promise.race([
+        fetch(url, {signal: searchAbortController.signal}),
+        new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('timeout')), timeout)
+        )
+      ]);
+    };
+    
+    const responses = await Promise.allSettled([
+      fetchWithTimeout(urls[0]),
+      fetchWithTimeout(urls[1])
+    ]);
+    
+    // Process results from whichever responds first
+    for (const response of responses) {
+      if (response.status === 'fulfilled' && response.value.ok) {
+        const data = await response.value.json();
+        if (data && Array.isArray(data.products) && data.products.length) {
+          return data.products.slice(0, 8).map(p => ({
+            code: p.code,
+            product_name: p.product_name || p.generic_name || p.brands || 'Unknown',
+            nutriments: p.nutriments || {},
+            product: p
+          }));
+        }
       }
-    } catch (e) {
-      if (e.name === 'AbortError') return [];
-      console.warn('search error', e);
     }
+    
+    return [];
+  } catch (e) {
+    if (e.name === 'AbortError') return [];
+    console.warn('search error', e);
+    return [];
   }
-  return [];
 }
 
 // Search Input Handler - Open Food Facts Only (German first, then international)
@@ -2650,33 +2671,38 @@ let searchInProgress = false;
 
 searchInput.addEventListener('input', (e) => {
   const v = e.target.value.trim();
+  
+  // Clear immediately if empty
   if (!v) {
     selectedProduct = null;
     renderSelectedProduct();
+    suggestionsEl.style.display = 'none';
+    spinner.style.display = 'none';
+    if (suggestionTimer) clearTimeout(suggestionTimer);
+    if (spinnerTimeout) clearTimeout(spinnerTimeout);
+    searchInProgress = false;
+    return;
   }
+  
   if (activeSearchTab !== 'search') return;
+  
+  // Cancel previous searches
   if (suggestionTimer) clearTimeout(suggestionTimer);
   if (spinnerTimeout) clearTimeout(spinnerTimeout);
   
+  // Show "searching" immediately if typing continues
+  if (v.length >= 2) {
+    showLoadingSuggestions('Searching...');
+  }
+  
   suggestionTimer = setTimeout(async () => {
-    if (!v) {
-      suggestionsEl.style.display = 'none';
-      spinner.style.display = 'none';
-      searchInProgress = false;
-      return;
-    }
-    
     searchInProgress = true;
     
     // Barcode search
     if (/^\d{8,}$/.test(v)) {
-      spinnerTimeout = setTimeout(() => {
-        if (searchInProgress) spinner.style.display = 'flex';
-      }, 150);
-      showLoadingSuggestions(`Looking up barcode ${v}…`);
+      spinner.style.display = 'flex';
       const found = await fetchProductByBarcode(v);
       searchInProgress = false;
-      if (spinnerTimeout) clearTimeout(spinnerTimeout);
       spinner.style.display = 'none';
       if (found) {
         renderSuggestions([{
@@ -2692,22 +2718,28 @@ searchInput.addEventListener('input', (e) => {
       }
     }
     
-    // Text search - Open Food Facts only (German first)
-    spinnerTimeout = setTimeout(() => {
-      if (searchInProgress) spinner.style.display = 'flex';
-    }, 150);
-    showLoadingSuggestions('Searching...');
+    // Text search - Open Food Facts only
+    if (v.length < 3) {
+      suggestionsEl.style.display = 'none';
+      searchInProgress = false;
+      return;
+    }
     
+    spinner.style.display = 'flex';
     const results = await searchSuggestions(v);
     
     searchInProgress = false;
-    if (spinnerTimeout) {
-      clearTimeout(spinnerTimeout);
-      spinnerTimeout = null;
-    }
     spinner.style.display = 'none';
-    renderSuggestions(results);
-  }, 100); // Reduced from 150ms to 100ms for snappier response
+    
+    if (results.length === 0) {
+      renderSuggestions([{
+        manual: true, 
+        product_name: 'No results found. Try different keywords or add manually.'
+      }]);
+    } else {
+      renderSuggestions(results);
+    }
+  }, 50); // Super fast - only 50ms delay!
 });
 
 
